@@ -1,16 +1,8 @@
 ﻿* text=auto
 
-# Código: siempre LF en el repo
-*.py   text eol=lf
-*.sh   text eol=lf
-*.md   text eol=lf
-*.yml  text eol=lf
-*.yaml text eol=lf
-*.json text eol=lf
-*.toml text eol=lf
-*.js   text eol=lf
-*.ts   text eol=lf
-*.css  text eol=lf
-
-# Windows PowerShell: CRLF en working copy
-*.ps1  text eol=crlf
+# Forzamos estilos donde importa
+*.ps1   text eol=crlf
+*.sh    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
