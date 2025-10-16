@@ -1,0 +1,40 @@
+# SO / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Entorno / secretos
+.env
+.env.*
+config/*secrets*.yaml
+config/*.local.*
+
+# Datos y artefactos (NO versionar)
+data/brutos_json/
+data/limpios_json/
+data/ocr/
+data/pdf/
+data/md_chunks/
+exports/
+logs/
+tmp/
+
+# Binarios grandes
+*.pdf
+*.parquet
+*.feather
+*.arrow
+*.sqlite
+*.db
+
+# EXCEPCIONES (sí versionar)
+!data/samples/**
+!data/**/.gitkeep
+!exports/README.md
