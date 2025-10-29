@@ -17,6 +17,20 @@ from datetime import datetime
 
 # ---------- FUNCIONES BASE ----------
 
+def sanitize_csv_value(value: Any) -> str:
+    """
+    Sanitiza valores para CSV compatible con Neo4j LOAD CSV.
+    Neo4j usa RFC 4180: comillas dobles se escapan duplicándolas.
+    """
+    if value is None:
+        return ""
+    
+    str_value = str(value)
+    # Escapar comillas dobles duplicándolas (RFC 4180)
+    str_value = str_value.replace('"', '""')
+    return str_value
+
+
 def sanitize_path(path: str) -> str:
     """
     Sanitiza el path para crear IDs seguros para Neo4j.
@@ -84,14 +98,8 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
                 "depth": str(depth)
             }
             
-            # Agregar valores primitivos como propiedades
-            primitive_props = {}
-            for key, value in obj.items():
-                if isinstance(value, (str, int, float, bool, type(None))):
-                    primitive_props[key] = str(value) if value is not None else ""
-            
-            if primitive_props:
-                node["properties"] = json.dumps(primitive_props, ensure_ascii=False)
+            # TODO: Agregar valores primitivos como propiedades individuales más adelante
+            # Por ahora omitimos el campo properties para evitar problemas con JSON embebido
             
             nodes[node_id] = node
 
@@ -145,15 +153,8 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
                     item_path = f"{path}[{i}]"
                     traverse_json(item, list_node_id, source_file, item_path, nodes, relationships, seen_ids, depth + 1, max_depth)
         else:
-            # Lista de primitivos: guardar como propiedad en el padre si existe
-            if parent_id and parent_id in nodes:
-                prop_key = path.split(".")[-1] if "." in path else path
-                if "properties" not in nodes[parent_id]:
-                    nodes[parent_id]["properties"] = "{}"
-                
-                props = json.loads(nodes[parent_id]["properties"]) if nodes[parent_id].get("properties") else {}
-                props[prop_key] = json.dumps(obj, ensure_ascii=False)
-                nodes[parent_id]["properties"] = json.dumps(props, ensure_ascii=False)
+            # Lista de primitivos: por ahora no guardamos para evitar JSON embebido
+            pass
 
 
 def extract_nodes_and_relationships(data: Dict[str, Any], source_file: str, max_depth: int = 50) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -206,9 +207,12 @@ def write_nodes_csv(nodes: List[Dict[str, Any]], filepath: Path):
             fieldnames.append(key)
     
     with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore', quoting=csv.QUOTE_MINIMAL)
         writer.writeheader()
-        writer.writerows(nodes)
+        
+        for node in nodes:
+            safe_node = {k: sanitize_csv_value(v) for k, v in node.items()}
+            writer.writerow(safe_node)
     
     # Escribir metadatos en archivo JSON separado (CSV-lint compatible)
     metadata_path = filepath.with_suffix('.metadata.json')
@@ -223,20 +227,23 @@ def write_nodes_csv(nodes: List[Dict[str, Any]], filepath: Path):
     with open(metadata_path, 'w', encoding='utf-8') as metafile:
         json.dump(metadata, metafile, indent=2, ensure_ascii=False)
     
-    print(f"  📄 Nodos escritos: {len(nodes)}")
+    print(f"  Nodos escritos: {len(nodes)}")
 
 
 def write_relationships_csv(relationships: List[Dict[str, Any]], filepath: Path):
     """Escribe las relaciones en CSV."""
     if not relationships:
-        print("  ⚠️  No hay relaciones para escribir")
+        print("  ADVERTENCIA: No hay relaciones para escribir")
         return
     
     with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["start_id", "end_id", "type", "properties"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_MINIMAL)
         writer.writeheader()
-        writer.writerows(relationships)
+        
+        for rel in relationships:
+            safe_rel = {k: sanitize_csv_value(v) for k, v in rel.items()}
+            writer.writerow(safe_rel)
     
     # Escribir metadatos en archivo JSON separado (CSV-lint compatible)
     metadata_path = filepath.with_suffix('.metadata.json')
@@ -258,7 +265,7 @@ def write_relationships_csv(relationships: List[Dict[str, Any]], filepath: Path)
     with open(metadata_path, 'w', encoding='utf-8') as metafile:
         json.dump(metadata, metafile, indent=2, ensure_ascii=False)
     
-    print(f"  🔗 Relaciones escritas: {len(relationships)}")
+    print(f"  Relaciones escritas: {len(relationships)}")
 
 
 def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
@@ -284,7 +291,7 @@ def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
     processed_files = 0
 
     for json_file in sorted(input_path.glob("*.json")):
-        print(f"\n▶ Procesando {json_file.name}...")
+        print(f"\n> Procesando {json_file.name}...")
         data = load_json_file(str(json_file))
         if not data:
             continue
@@ -300,14 +307,14 @@ def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
         total_rels += len(relationships)
         processed_files += 1
 
-        print(f"✅ Generados: {nodes_file.name}, {rels_file.name}")
+        print(f"OK - Generados: {nodes_file.name}, {rels_file.name}")
     
     print(f"\n{'='*60}")
-    print(f"🎉 Transformación completada:")
-    print(f"   📁 Archivos procesados: {processed_files}")
-    print(f"   📦 Total nodos: {total_nodes}")
-    print(f"   🔗 Total relaciones: {total_rels}")
-    print(f"   🔢 Profundidad máxima: {max_depth}")
+    print(f"Transformacion completada:")
+    print(f"   Archivos procesados: {processed_files}")
+    print(f"   Total nodos: {total_nodes}")
+    print(f"   Total relaciones: {total_rels}")
+    print(f"   Profundidad maxima: {max_depth}")
     print(f"{'='*60}")
 
 
@@ -332,23 +339,23 @@ Ejemplos de uso:
     args = parser.parse_args()
     
     print("=" * 60)
-    print("🔄 JSON to Neo4j Graph Converter")
+    print("JSON to Neo4j Graph Converter")
     print("=" * 60)
     
     if args.input_dir and args.output_dir:
         input_dir = args.input_dir
         output_dir = args.output_dir
-        print(f"📂 Entrada: {input_dir}")
-        print(f"📂 Salida: {output_dir}")
+        print(f"Entrada: {input_dir}")
+        print(f"Salida: {output_dir}")
     else:
         base_dir = Path(__file__).parent.parent.parent  # asume estructura data_transform/
         input_dir = str(base_dir / "data" / "limpios_json")
         output_dir = str(base_dir / "grafos" / "datos_grafos")
-        print(f"📂 Usando rutas por defecto:")
+        print(f"Usando rutas por defecto:")
         print(f"   Entrada: {input_dir}")
         print(f"   Salida: {output_dir}")
     
-    print(f"🔢 Profundidad máxima: {args.max_depth}")
+    print(f"Profundidad maxima: {args.max_depth}")
 
     process_json_files(input_dir, output_dir, args.max_depth)
 

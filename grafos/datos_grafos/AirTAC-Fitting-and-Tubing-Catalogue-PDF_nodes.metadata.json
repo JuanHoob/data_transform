@@ -1,6 +1,6 @@
 {
   "generated_by": "json_to_graph.py",
-  "generated_at": "2025-10-28 19:49:09",
+  "generated_at": "2025-10-29 12:16:08",
   "total_nodes": 162715,
   "columns": [
     "id",
@@ -10,8 +10,7 @@
     "type",
     "path",
     "depth",
-    "length",
-    "properties"
+    "length"
   ],
   "file_type": "nodes",
   "csv_file": "AirTAC-Fitting-and-Tubing-Catalogue-PDF_nodes.csv"

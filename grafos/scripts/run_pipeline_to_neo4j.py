@@ -11,11 +11,11 @@ from pathlib import Path
 # Configuracion
 JSON_TO_GRAPH_SCRIPT = Path(__file__).parent / "json_to_graph.py"
 CSV_OUTPUT_DIR = Path(__file__).parent.parent / "datos_grafos"
-NEO4J_IMPORT_DIR = Path(r"C:\Users\Juan\.Neo4jDesktop2\Data\dbmss\dbms-e27af981-XXXX\import")
+NEO4J_IMPORT_DIR = Path(r"C:\Users\Juan\.Neo4jDesktop2\Data\dbmss\dbms-e27af981-1d2d-4852-8688-53edc0f4e59e\import")
 
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "admin123"
-CYPHER_SHELL_PATH = "cypher-shell"
+CYPHER_SHELL_PATH = r"C:\Users\Juan\.Neo4jDesktop2\Cache\dbmss\neo4j-enterprise-2025.09.0\bin\cypher-shell.bat"
 
 NODE_LABEL = "DataNode"
 RELATIONSHIP_TYPE = "TIENE"
@@ -280,8 +280,17 @@ def main():
     print("PIPELINE: JSON -> CSV -> Neo4j")
     print("=" * 60 + "\n")
     
-    run_json_to_csv()
+    # Descubrir archivos CSV existentes
     csv_pairs = discover_csv_files()
+    
+    # Solo generar CSVs si no existen
+    if not csv_pairs:
+        print("No se encontraron CSVs existentes. Generando...")
+        run_json_to_csv()
+        csv_pairs = discover_csv_files()
+    else:
+        print(f"Usando {len(csv_pairs)} pares de CSVs existentes")
+        print("=" * 60 + "\n")
     
     if not csv_pairs:
         print("No se encontraron pares CSV")
