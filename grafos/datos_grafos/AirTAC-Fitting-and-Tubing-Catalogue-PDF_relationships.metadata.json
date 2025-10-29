@@ -1,0 +1,10 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:49:10",
+  "total_relationships": 162714,
+  "relationship_types": {
+    "TIENE": 162714
+  },
+  "file_type": "relationships",
+  "csv_file": "AirTAC-Fitting-and-Tubing-Catalogue-PDF_relationships.csv"
+}

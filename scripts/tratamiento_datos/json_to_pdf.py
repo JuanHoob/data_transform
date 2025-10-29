@@ -3,8 +3,8 @@
 """
 Convierte un JSON de Azure Document Intelligence a un PDF de **solo texto** (flujo lineal).
 Uso ejemplo:
-python scripts/tratamiento_de_datos/json_to_pdf.py ^
-  --json ".\\data\\brutos_json\\AirTAC-Booklet-EU-EN.json" ^
+python scripts/tratamiento_datos/json_to_pdf.py ^
+  --json ".\\data\\limpios_json\\AirTAC-Booklet-EU-EN.json" ^
   --out  ".\\exports\\pdf\\AirTAC-Booklet-EU-EN.text.pdf" ^
   --title "AirTAC Booklet - Texto extraído" ^
   --font Helvetica ^

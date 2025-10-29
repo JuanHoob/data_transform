@@ -1,4 +1,4 @@
-# scripts/csv_to_doc_md.py
+# scripts/tratamiento_datos/csv_to_md.py
 import csv, os, argparse, itertools
 ap=argparse.ArgumentParser(); ap.add_argument("--csv", required=True)
 ap.add_argument("--outdir", default="exports/docs_md"); args=ap.parse_args()

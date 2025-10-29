@@ -1,9 +1,9 @@
-# scripts/tratamiento_de_datos/csv_to_ndjson.py
+# scripts/tratamiento_datos/csv_to_json.py
 import os, csv, json, argparse, re
 
 ap = argparse.ArgumentParser(description="CSV -> NDJSON (para Azure AI Search u otros).")
 ap.add_argument("--csv", required=True, help="Ruta al CSV (p. ej., exports/csv/export_di.csv)")
-ap.add_argument("--out", default="exports/azure/export_azure.ndjson", help="Ruta NDJSON (por defecto: exports/azure/export_azure.ndjson)")
+ap.add_argument("--out", default="exports/csv/export_azure.ndjson", help="Ruta NDJSON (por defecto: exports/csv/export_azure.ndjson)")
 ap.add_argument("--index-name", default="invk-ocr-chunks", help="Nombre de índice (si aplica)")
 args = ap.parse_args()
 

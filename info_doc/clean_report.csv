@@ -1,0 +1,6 @@
+file_in,file_out,strings_total,strings_changed,chars_removed,chars_mapped,written
+data\brutos_json\AirTAC-Booklet-EU-EN.json,data\limpios_json\AirTAC-Booklet-EU-EN.json,5411,0,0,0,yes
+data\brutos_json\AirTAC-Fitting-and-Tubing-Catalogue-PDF.json,data\limpios_json\AirTAC-Fitting-and-Tubing-Catalogue-PDF.json,52298,16,0,20,yes
+data\brutos_json\AirTAC-Product-Catalogue-EU-ES.json,data\limpios_json\AirTAC-Product-Catalogue-EU-ES.json,334133,25,0,32,yes
+data\brutos_json\Catalogo-AirTAC-INVIKTA-2016.json,data\limpios_json\Catalogo-AirTAC-INVIKTA-2016.json,363387,20,0,48,yes
+data\brutos_json\Linear-Guide-Catalogue-EU-ES.json,data\limpios_json\Linear-Guide-Catalogue-EU-ES.json,38149,16,0,20,yes

@@ -23,6 +23,7 @@ data/ocr/
 data/pdf/
 data/md_chunks/
 exports/
+grafos/datos_grafos/*.csv
 logs/
 tmp/
 

@@ -13,14 +13,14 @@ Filtro de limpieza para JSON (Azure DI / OCR / genéricos).
 Estructura esperada del repo del usuario:
   - Entrada por defecto:  data/brutos_json
   - Salida por defecto:   data/limpios_json
-  - Reporte por defecto:  infodoc/clean_report.csv
+  - Reporte por defecto:  info_doc/clean_report.csv
 
 Uso típico (PowerShell):
   # Simulación (no escribe archivos)
   python scripts/limpiezaD/clean_json_text.py `
       --in data\\brutos_json `
       --out data\\limpios_json `
-      --report infodoc\\clean_report.csv `
+      --report info_doc\\clean_report.csv `
       --ext .json `
       --dry-run
 
@@ -28,12 +28,12 @@ Uso típico (PowerShell):
   python scripts/limpiezaD/clean_json_text.py `
       --in data\\brutos_json `
       --out data\\limpios_json `
-      --report infodoc\\clean_report.csv `
+      --report info_doc\\clean_report.csv `
       --ext .json `
       --overwrite
 
 Para un archivo concreto:
-  python scripts/limpiezaD/clean_json_text.py --in data\\brutos_json\\archivo.json --out data\\limpios_json --report infodoc\\clean_report.csv --overwrite
+  python scripts/limpiezaD/clean_json_text.py --in data\\brutos_json\\archivo.json --out data\\limpios_json --report info_doc\\clean_report.csv --overwrite
 
 Requisitos: solo librerías estándar (argparse, json, unicodedata, etc.). PyYAML opcional si usas --rules.
 """
@@ -262,7 +262,7 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Limpieza de JSON (Unicode/textos problemáticos).")
     ap.add_argument("--in", dest="in_path", required=True, help="Archivo JSON o carpeta (p. ej., data/brutos_json)")
     ap.add_argument("--out", dest="out_dir", default="data/limpios_json", help="Carpeta de salida (por defecto: data/limpios_json)")
-    ap.add_argument("--report", default="infodoc/clean_report.csv", help="CSV de métricas (por defecto: infodoc/clean_report.csv)")
+    ap.add_argument("--report", default="info_doc/clean_report.csv", help="CSV de métricas (por defecto: info_doc/clean_report.csv)")
     ap.add_argument("--ext", default=".json", help="Extensión a filtrar cuando --in es carpeta (por defecto: .json)")
     ap.add_argument("--overwrite", action="store_true", help="Sobrescribe si el destino ya existe")
     ap.add_argument("--dry-run", action="store_true", help="No escribe archivos, solo calcula métricas")

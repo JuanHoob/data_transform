@@ -1,0 +1,18 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:51:04",
+  "total_nodes": 1098560,
+  "columns": [
+    "id",
+    "label",
+    "name",
+    "source",
+    "type",
+    "path",
+    "depth",
+    "length",
+    "properties"
+  ],
+  "file_type": "nodes",
+  "csv_file": "Catalogo-AirTAC-INVIKTA-2016_nodes.csv"
+}

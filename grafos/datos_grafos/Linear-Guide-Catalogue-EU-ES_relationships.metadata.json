@@ -1,0 +1,10 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:51:22",
+  "total_relationships": 107767,
+  "relationship_types": {
+    "TIENE": 107767
+  },
+  "file_type": "relationships",
+  "csv_file": "Linear-Guide-Catalogue-EU-ES_relationships.csv"
+}

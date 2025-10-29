@@ -1,0 +1,18 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:49:01",
+  "total_nodes": 13673,
+  "columns": [
+    "id",
+    "label",
+    "name",
+    "source",
+    "type",
+    "path",
+    "depth",
+    "length",
+    "properties"
+  ],
+  "file_type": "nodes",
+  "csv_file": "AirTAC-Booklet-EU-EN_nodes.csv"
+}

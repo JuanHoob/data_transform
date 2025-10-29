@@ -1,8 +1,8 @@
 ﻿#!/usr/bin/env python3
-# scripts/tratamiento_de_datos/di_json_to_csv.py
+# scripts/tratamiento_datos/json_to_csv.py
 # Convierte JSON de Azure Document Intelligence a CSV (párrafos, tablas, líneas).
 # Uso:
-#   python scripts/tratamiento_de_datos/di_json_to_csv.py --input ".\\data\\brutos_json\\*.json" --out ".\\exports\\csv\\export_di.csv"
+#   python scripts/tratamiento_datos/json_to_csv.py --input ".\\data\\limpios_json\\*.json" --out ".\\exports\\csv\\export_di.csv"
 # Salida columnas: file, doc_title, page, block_type, role, section, content
 
 import os, json, argparse, glob, csv
@@ -105,7 +105,7 @@ def extract_rows(obj: Dict[str,Any], filename: str):
 
 def main():
     ap = argparse.ArgumentParser(description="DI JSON -> CSV")
-    ap.add_argument("--input", required=True, help="Ruta .json o patrón (ej.: data/brutos_json/*.json)")
+    ap.add_argument("--input", required=True, help="Ruta .json o patrón (ej.: data/limpios_json/*.json)")
     ap.add_argument("--out", default="exports/csv/export_di.csv", help="CSV de salida (por defecto: exports/csv/export_di.csv)")
     ap.add_argument("--min_chars", type=int, default=25, help="Mínimo de caracteres por fila")
     args = ap.parse_args()

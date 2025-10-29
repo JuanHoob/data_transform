@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# scripts/tratamiento_de_datos/di_json_to_dualpdf.py
+# scripts/tratamiento_datos/json_to_dual_pdf.py
 # -*- coding: utf-8 -*-
 """
 JSON DI -> Dual PDF (texto reconstruido + página original con resaltados)
@@ -7,7 +7,7 @@ Requisitos:
   pip install pymupdf
 
 Uso (PowerShell):
-  python scripts/tratamiento_de_datos/di_json_to_dualpdf.py --json ".\\data\\brutos_json\\AirTAC-Booklet-EU-EN.pdf.json" ^
+  python scripts/tratamiento_datos/json_to_dual_pdf.py --json ".\\data\\limpios_json\\AirTAC-Booklet-EU-EN.json" ^
       --pdf ".\\data\\brutos_pdf\\AirTAC-Booklet-EU-EN.pdf" ^
       --out ".\\exports\\pdf\\AirTAC-Booklet-dual.pdf" ^
       --title "AirTAC Booklet - Dual (texto + original)"

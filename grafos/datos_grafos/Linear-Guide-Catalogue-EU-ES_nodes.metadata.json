@@ -1,0 +1,18 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:51:21",
+  "total_nodes": 107768,
+  "columns": [
+    "id",
+    "label",
+    "name",
+    "source",
+    "type",
+    "path",
+    "depth",
+    "length",
+    "properties"
+  ],
+  "file_type": "nodes",
+  "csv_file": "Linear-Guide-Catalogue-EU-ES_nodes.csv"
+}

@@ -1,4 +1,4 @@
-# scripts/tratamiento_de_datos/csv_to_md_chunks.py
+# scripts/tratamiento_datos/csv_to_md_chunks.py
 import os, csv, argparse, textwrap
 
 ap = argparse.ArgumentParser(description="CSV -> MD chunks (para RAG).")

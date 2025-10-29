@@ -1,0 +1,10 @@
+{
+  "generated_by": "json_to_graph.py",
+  "generated_at": "2025-10-28 19:51:15",
+  "total_relationships": 1098559,
+  "relationship_types": {
+    "TIENE": 1098559
+  },
+  "file_type": "relationships",
+  "csv_file": "Catalogo-AirTAC-INVIKTA-2016_relationships.csv"
+}
