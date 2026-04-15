@@ -12,9 +12,13 @@ __pycache__/
 
 # Entorno / secretos
 .env
-.env.*
+.env.local
+.env.*.local
 config/*secrets*.yaml
 config/*.local.*
+
+# EXCEPCIONES (sí versionar)
+!.env.example
 
 # Datos y artefactos (NO versionar)
 data/brutos_json/
