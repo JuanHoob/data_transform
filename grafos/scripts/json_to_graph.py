@@ -98,8 +98,16 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
                 "depth": str(depth)
             }
             
-            # TODO: Agregar valores primitivos como propiedades individuales más adelante
-            # Por ahora omitimos el campo properties para evitar problemas con JSON embebido
+            # Agregar valores primitivos como propiedades del nodo
+            for key, value in obj.items():
+                if not isinstance(value, (dict, list)):
+                    # Valores primitivos: número, string, booleano, null, etc.
+                    safe_key = f"prop_{sanitize_path(key)}"
+                    node[safe_key] = str(value)
+                elif isinstance(value, list) and value and not any(isinstance(item, (dict, list)) for item in value):
+                    # Lista de primitivos: serializar separados por semicolon
+                    safe_key = f"prop_{sanitize_path(key)}"
+                    node[safe_key] = "; ".join(str(item) for item in value)
             
             nodes[node_id] = node
 

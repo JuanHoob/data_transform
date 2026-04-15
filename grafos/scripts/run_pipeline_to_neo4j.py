@@ -6,19 +6,35 @@ import subprocess
 import shutil
 import sys
 import json
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Configuracion
+# Cargar variables de entorno desde .env
+_env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(_env_path, verbose=False)
+
+# Configuración — todos los valores se leen del entorno
 JSON_TO_GRAPH_SCRIPT = Path(__file__).parent / "json_to_graph.py"
-CSV_OUTPUT_DIR = Path(__file__).parent.parent / "datos_grafos"
-NEO4J_IMPORT_DIR = Path(r"C:\Users\Juan\.Neo4jDesktop2\Data\dbmss\dbms-e27af981-1d2d-4852-8688-53edc0f4e59e\import")
+CSV_OUTPUT_DIR = Path(os.getenv("CSV_OUTPUT_DIR", "grafos/datos_grafos"))
 
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "admin123"
-CYPHER_SHELL_PATH = r"C:\Users\Juan\.Neo4jDesktop2\Cache\dbmss\neo4j-enterprise-2025.09.0\bin\cypher-shell.bat"
+# Configuración Neo4j — REQUIERE variables de entorno
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+NEO4J_IMPORT_DIR = os.getenv("NEO4J_IMPORT_DIR")
+CYPHER_SHELL_PATH = os.getenv("CYPHER_SHELL_PATH")
 
-NODE_LABEL = "DataNode"
-RELATIONSHIP_TYPE = "TIENE"
+if not NEO4J_PASSWORD:
+    raise ValueError("ERROR: NEO4J_PASSWORD no definido en .env")
+if not NEO4J_IMPORT_DIR:
+    raise ValueError("ERROR: NEO4J_IMPORT_DIR no definido en .env")
+if not CYPHER_SHELL_PATH:
+    raise ValueError("ERROR: CYPHER_SHELL_PATH no definido en .env")
+
+NEO4J_IMPORT_DIR = Path(NEO4J_IMPORT_DIR)
+
+NODE_LABEL = os.getenv("NEO4J_NODE_LABEL", "DataNode")
+RELATIONSHIP_TYPE = os.getenv("NEO4J_REL_TYPE", "TIENE")
 
 
 def discover_csv_files():
