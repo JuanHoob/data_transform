@@ -8,6 +8,8 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 *.egg-info/
+.pytest_cache/
+.ruff_cache/
 .venv/
 
 # Entorno / secretos

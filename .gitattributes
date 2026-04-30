@@ -11,6 +11,14 @@
 *.js   text eol=lf
 *.ts   text eol=lf
 *.css  text eol=lf
+*.txt  text eol=lf
+*.gitkeep text eol=lf
+.editorconfig text eol=lf
+.env.example  text eol=lf
+.gitattributes text eol=lf
+.gitignore    text eol=lf
+LICENSE       text eol=lf
+requirements.txt text eol=lf
 
 # Windows PowerShell: CRLF en working copy
 *.ps1  text eol=crlf
