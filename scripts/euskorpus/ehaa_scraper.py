@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 EHAA/BOPV Scraper - Scraper para el Boletín Oficial del País Vasco (BOPV/EHAA).
 
@@ -12,34 +11,21 @@ Uso:
     python ehaa_scraper.py --help
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
 import re
-import sys
 import time
 import unicodedata
-from datetime import datetime, date
+from collections.abc import Generator
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
-from urllib.parse import urljoin, urlparse
+from typing import Any
+from urllib.parse import urljoin
 
-try:
-    import requests
-    from bs4 import BeautifulSoup
-except ImportError:
-    print("ERROR: Instala dependencias con:  pip install requests beautifulsoup4 lxml", file=sys.stderr)
-    sys.exit(1)
-
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
-logger = logging.getLogger("ehaa_scraper")
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -69,16 +55,37 @@ LANG_ES = "es"
 # Utilidades HTTP
 # ---------------------------------------------------------------------------
 
+
+def ensure_scraper_dependencies() -> tuple[Any, Any]:
+    """Carga dependencias opcionales del scraper bajo demanda."""
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+    except ImportError as exc:
+        raise RuntimeError(
+            "Missing scraper dependencies. Install with: pip install -e '.[scraper]'"
+        ) from exc
+    return requests, BeautifulSoup
+
+
+def _make_soup(html: str) -> Any:
+    _, beautiful_soup = ensure_scraper_dependencies()
+    return beautiful_soup(html, "lxml")
+
+
 class RateLimitedSession:
     """Sesión HTTP con rate-limiting y reintentos automáticos."""
 
-    def __init__(self, headers: Optional[Dict] = None, rate_limit: float = RATE_LIMIT_SECONDS):
-        self.session = requests.Session()
+    def __init__(
+        self, headers: dict[str, str] | None = None, rate_limit: float = RATE_LIMIT_SECONDS
+    ):
+        self.requests, _ = ensure_scraper_dependencies()
+        self.session = self.requests.Session()
         self.session.headers.update(headers or DEFAULT_HEADERS)
         self.rate_limit = rate_limit
         self._last_request: float = 0.0
 
-    def get(self, url: str, **kwargs) -> requests.Response:
+    def get(self, url: str, **kwargs: Any) -> Any:
         """GET con rate-limit y reintentos."""
         # Esperar si es necesario
         elapsed = time.monotonic() - self._last_request
@@ -91,7 +98,7 @@ class RateLimitedSession:
                 self._last_request = time.monotonic()
                 response.raise_for_status()
                 return response
-            except requests.RequestException as exc:
+            except self.requests.RequestException as exc:
                 logger.warning("Intento %d/%d fallido para %s: %s", attempt, MAX_RETRIES, url, exc)
                 if attempt == MAX_RETRIES:
                     raise
@@ -103,6 +110,7 @@ class RateLimitedSession:
 # ---------------------------------------------------------------------------
 # Limpieza de texto
 # ---------------------------------------------------------------------------
+
 
 def normalize_unicode(text: str) -> str:
     """Normaliza unicode a NFC y elimina caracteres de control."""
@@ -124,7 +132,7 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
-def extract_paragraphs(soup: BeautifulSoup, selector: str = "div.bopv-content") -> List[str]:
+def extract_paragraphs(soup: Any, selector: str = "div.bopv-content") -> list[str]:
     """
     Extrae párrafos de texto de la página.
     Prueba selectores progresivos hasta encontrar contenido.
@@ -151,7 +159,8 @@ def extract_paragraphs(soup: BeautifulSoup, selector: str = "div.bopv-content") 
 # Parsing de documentos BOPV
 # ---------------------------------------------------------------------------
 
-def parse_bopv_document(html: str, url: str, language: str = LANG_ES) -> Dict[str, Any]:
+
+def parse_bopv_document(html: str, url: str, language: str = LANG_ES) -> dict[str, Any]:
     """
     Parsea un documento BOPV y devuelve un dict estructurado.
 
@@ -168,13 +177,10 @@ def parse_bopv_document(html: str, url: str, language: str = LANG_ES) -> Dict[st
           "metadata": {...}
         }
     """
-    soup = BeautifulSoup(html, "lxml")
+    soup = _make_soup(html)
 
     # Título
-    title_tag = (
-        soup.find("h1")
-        or soup.find("title")
-    )
+    title_tag = soup.find("h1") or soup.find("title")
     title = clean_text(title_tag.get_text()) if title_tag else ""
 
     # Fecha de publicación (formato BOPV: dd/mm/yyyy o yyyy/mm/dd en URL)
@@ -192,7 +198,7 @@ def parse_bopv_document(html: str, url: str, language: str = LANG_ES) -> Dict[st
     return {
         "url": url,
         "language": language,
-        "scraped_at": datetime.utcnow().isoformat() + "Z",
+        "scraped_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "title": title,
         "date_published": date_published,
         "section": section,
@@ -206,7 +212,7 @@ def parse_bopv_document(html: str, url: str, language: str = LANG_ES) -> Dict[st
     }
 
 
-def _extract_date(soup: BeautifulSoup, url: str) -> Optional[str]:
+def _extract_date(soup: Any, url: str) -> str | None:
     """Intenta extraer la fecha de publicación del documento."""
     # 1) Meta tag
     for meta in soup.find_all("meta"):
@@ -235,7 +241,7 @@ def _extract_date(soup: BeautifulSoup, url: str) -> Optional[str]:
     return None
 
 
-def _parse_date_string(text: str) -> Optional[str]:
+def _parse_date_string(text: str) -> str | None:
     """Parsea texto de fecha a formato YYYY-MM-DD."""
     formats = ["%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y", "%Y%m%d"]
     for fmt in formats:
@@ -246,7 +252,7 @@ def _parse_date_string(text: str) -> Optional[str]:
     return None
 
 
-def _extract_section(soup: BeautifulSoup) -> Optional[str]:
+def _extract_section(soup: Any) -> str | None:
     """Extrae la sección del boletín (I, II, III...) si existe."""
     for tag in soup.find_all(["h2", "h3", "div", "span"], limit=20):
         text = tag.get_text(strip=True)
@@ -255,7 +261,7 @@ def _extract_section(soup: BeautifulSoup) -> Optional[str]:
     return None
 
 
-def _extract_bopv_number(soup: BeautifulSoup, url: str) -> Optional[str]:
+def _extract_bopv_number(soup: Any, url: str) -> str | None:
     """Extrae el número de BOPV del contenido o URL."""
     # De la URL: .../datos/2024/01/15/00001234.shtml
     num_match = re.search(r"/(\d{8})\.s?html?", url)
@@ -274,9 +280,10 @@ def _extract_bopv_number(soup: BeautifulSoup, url: str) -> Optional[str]:
 # Índice de números de BOPV
 # ---------------------------------------------------------------------------
 
+
 def iter_bopv_urls_for_year(
     year: int, session: RateLimitedSession
-) -> Generator[Dict[str, str], None, None]:
+) -> Generator[dict[str, str], None, None]:
     """
     Genera pares {"url_es": ..., "url_eu": ...} para cada entrada del BOPV
     publicada en `year`.
@@ -286,16 +293,16 @@ def iter_bopv_urls_for_year(
 
     try:
         resp = session.get(index_url)
-    except requests.RequestException as exc:
+    except session.requests.RequestException as exc:
         logger.error("No se pudo obtener el índice para %d: %s", year, exc)
         return
 
-    soup = BeautifulSoup(resp.text, "lxml")
+    soup = _make_soup(resp.text)
     links = soup.find_all("a", href=True)
 
     doc_pattern = re.compile(r"\d{8}\.s?html?$", re.IGNORECASE)
 
-    seen: set = set()
+    seen: set[str] = set()
     for link in links:
         href = link["href"]
         full_url = urljoin(index_url, href)
@@ -310,12 +317,13 @@ def iter_bopv_urls_for_year(
 # Scraper principal
 # ---------------------------------------------------------------------------
 
-def scrape_document(url: str, language: str, session: RateLimitedSession) -> Optional[Dict[str, Any]]:
+
+def scrape_document(url: str, language: str, session: RateLimitedSession) -> dict[str, Any] | None:
     """Descarga y parsea un documento BOPV."""
     try:
         resp = session.get(url)
         return parse_bopv_document(resp.text, url, language)
-    except requests.RequestException as exc:
+    except session.requests.RequestException as exc:
         logger.warning("Error descargando %s: %s", url, exc)
         return None
 
@@ -323,10 +331,10 @@ def scrape_document(url: str, language: str, session: RateLimitedSession) -> Opt
 def scrape_year(
     year: int,
     output_dir: Path,
-    languages: List[str],
-    session: Optional[RateLimitedSession] = None,
-    max_docs: Optional[int] = None,
-) -> List[Path]:
+    languages: list[str],
+    session: RateLimitedSession | None = None,
+    max_docs: int | None = None,
+) -> list[Path]:
     """
     Scrapea todos los documentos de un año y los guarda como JSON.
 
@@ -337,7 +345,7 @@ def scrape_year(
         session = RateLimitedSession()
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    saved_files: List[Path] = []
+    saved_files: list[Path] = []
     count = 0
 
     for entry in iter_bopv_urls_for_year(year, session):
@@ -362,7 +370,9 @@ def scrape_year(
     return saved_files
 
 
-def scrape_url(url: str, output_dir: Path, session: Optional[RateLimitedSession] = None) -> Optional[Path]:
+def scrape_url(
+    url: str, output_dir: Path, session: RateLimitedSession | None = None
+) -> Path | None:
     """Scrapea una URL única y la guarda como JSON."""
     if session is None:
         session = RateLimitedSession()
@@ -385,14 +395,15 @@ def scrape_url(url: str, output_dir: Path, session: Optional[RateLimitedSession]
 # Utilidades de salida
 # ---------------------------------------------------------------------------
 
-def _build_filename(doc: Dict[str, Any], lang: str) -> str:
+
+def _build_filename(doc: dict[str, Any], lang: str) -> str:
     """Construye un nombre de archivo seguro para el documento."""
     date_part = doc.get("date_published") or "unknown-date"
     num_part = doc.get("bopv_number") or re.sub(r"[^\w]", "_", doc["url"][-20:])
     return f"bopv_{date_part}_{num_part}_{lang}.json"
 
 
-def _save_json(data: Dict[str, Any], path: Path) -> None:
+def _save_json(data: dict[str, Any], path: Path) -> None:
     """Serializa a JSON con indentación."""
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=2)
@@ -401,6 +412,7 @@ def _save_json(data: Dict[str, Any], path: Path) -> None:
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -444,9 +456,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     parser = build_arg_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
@@ -473,4 +486,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

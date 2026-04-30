@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Genera y/o fusiona el CSV de relaciones para Neo4j a partir de:
@@ -19,6 +18,7 @@ import argparse
 import glob
 import os
 import sys
+
 import pandas as pd
 
 # ----- Rutas por defecto (relativas al repo) -----
@@ -177,24 +177,40 @@ def dedupe_edges(df_edges: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Genera relationships.csv para Neo4j desde *.relations.csv")
+    ap = argparse.ArgumentParser(
+        description="Genera relationships.csv para Neo4j desde *.relations.csv"
+    )
     ap.add_argument("--nodes", default=NODES_CSV, help="Ruta al CSV de nodos")
     ap.add_argument("--relations-glob", default=RELATIONS_GLOB, help="Patrón glob de relations CSV")
     ap.add_argument("--out", default=REL_OUT, help="Archivo de salida relationships")
-    ap.add_argument("--orphans-out", default=ORPHANS_OUT, help="Archivo de salida de nodos huérfanos")
-    ap.add_argument("--default-type", dest="default_type", default="TIENE", help="Tipo por defecto si falta")
+    ap.add_argument(
+        "--orphans-out", default=ORPHANS_OUT, help="Archivo de salida de nodos huérfanos"
+    )
+    ap.add_argument(
+        "--default-type", dest="default_type", default="TIENE", help="Tipo por defecto si falta"
+    )
     ap.add_argument("--merge", action="store_true", help="Fusionar con relationships existente")
-    ap.add_argument("--allow-orphans", dest="allow_orphans", action="store_true", help="Permitir crear nodos huérfanos sintéticos")
-    ap.add_argument("--preview-nodes", dest="preview_nodes", action="store_true", help="Sólo mostrar vista previa de IDs de nodos y salir")
+    ap.add_argument(
+        "--allow-orphans",
+        dest="allow_orphans",
+        action="store_true",
+        help="Permitir crear nodos huérfanos sintéticos",
+    )
+    ap.add_argument(
+        "--preview-nodes",
+        dest="preview_nodes",
+        action="store_true",
+        help="Sólo mostrar vista previa de IDs de nodos y salir",
+    )
     args = ap.parse_args()
 
     # 1) Cargar nodos y preparar índices
     df_nodes = load_nodes(args.nodes)
     id_map, name_map, canon_map = build_node_index(df_nodes)
-    
+
     # Índice para ir del id de nodo a su fila (para recuperar 'source' y 'type')
     nodes_by_id = {row["id"]: row for _, row in df_nodes.iterrows()}
-    
+
     def source_of(node_id: str) -> str:
         """Obtiene el 'source' del nodo si existe; si no, intenta inferirlo del prefijo del id."""
         row = nodes_by_id.get(node_id, {})
@@ -241,7 +257,7 @@ def main():
 
         # Si no se resuelve el hijo y es un tipo base, intentar con source del padre
         if not end_id:
-            # Si el hijo es un tipo base 'pages/words/...' y el padre está resuelto, intenta canónico
+            # Si el hijo es tipo base y el padre está resuelto, intenta canónico.
             if c_raw in BASE_TYPES and start_id:
                 parent_src = source_of(start_id)
                 if parent_src:
@@ -257,11 +273,11 @@ def main():
                             orphan_row = {
                                 "id": end_id,
                                 "name": c_raw,
-                                "type": c_raw,        # etiqueta útil (p.ej. 'pages')
-                                "source": parent_src  # clave para trazabilidad
+                                "type": c_raw,  # etiqueta útil (p.ej. 'pages')
+                                "source": parent_src,  # clave para trazabilidad
                             }
                             orphan_rows.append(orphan_row)
-                            # Registrar en índices para que pueda ser padre en siguientes iteraciones
+                            # Registrar para que pueda ser padre en siguientes iteraciones.
                             id_map[end_id] = end_id
                             name_map[c_raw] = end_id
                             nodes_by_id[end_id] = orphan_row
@@ -271,14 +287,24 @@ def main():
             if args.allow_orphans:
                 if not start_id:
                     start_id = f"ORPHAN::{p_raw}"
-                    orphan_row = {"id": start_id, "name": p_raw, "type": "orphan", "source": "relations"}
+                    orphan_row = {
+                        "id": start_id,
+                        "name": p_raw,
+                        "type": "orphan",
+                        "source": "relations",
+                    }
                     orphan_rows.append(orphan_row)
                     # Registrar también los orphans ORPHAN:: por si acaso
                     id_map[start_id] = start_id
                     nodes_by_id[start_id] = orphan_row
                 if not end_id:
                     end_id = f"ORPHAN::{c_raw}"
-                    orphan_row = {"id": end_id, "name": c_raw, "type": "orphan", "source": "relations"}
+                    orphan_row = {
+                        "id": end_id,
+                        "name": c_raw,
+                        "type": "orphan",
+                        "source": "relations",
+                    }
                     orphan_rows.append(orphan_row)
                     # Registrar también
                     id_map[end_id] = end_id
@@ -303,14 +329,19 @@ def main():
         try:
             df_prev = pd.read_csv(args.out, dtype=str).fillna("")
             if set(["start_id", "end_id", "type"]) <= set(df_prev.columns):
-                df_merged = pd.concat([df_prev[["start_id", "end_id", "type"]], df_out], ignore_index=True)
+                df_merged = pd.concat(
+                    [df_prev[["start_id", "end_id", "type"]], df_out], ignore_index=True
+                )
                 df_merged = dedupe_edges(df_merged)
                 df_out = df_merged
                 info(f"Merge realizado con {args.out}. Total relaciones: {len(df_out)}")
             else:
                 warn(f"{args.out} existente no tiene columnas esperadas; se sobrescribirá.")
         except Exception as e:
-            warn(f"No se pudo leer {args.out} para merge ({e}); se sobrescribe con nuevas relaciones.")
+            warn(
+                f"No se pudo leer {args.out} para merge ({e}); "
+                "se sobrescribe con nuevas relaciones."
+            )
 
     # 5) Escribir relaciones
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

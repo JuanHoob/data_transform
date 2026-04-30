@@ -1,42 +1,57 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # scripts/tratamiento_datos/json_to_csv.py
 # Convierte JSON de Azure Document Intelligence a CSV (párrafos, tablas, líneas).
 # Uso:
-#   python scripts/tratamiento_datos/json_to_csv.py --input ".\\data\\limpios_json\\*.json" --out ".\\exports\\csv\\export_di.csv"
+#   python scripts/tratamiento_datos/json_to_csv.py --input ".\\data\\limpios_json\\*.json"
+#   python scripts/tratamiento_datos/json_to_csv.py --input input.json --out exports/csv/out.csv
 # Salida columnas: file, doc_title, page, block_type, role, section, content
 
-import os, json, argparse, glob, csv
-from typing import List, Dict, Any
+from __future__ import annotations
 
-def text_from_spans(full: str, spans: List[Dict[str, Any]]):
+import argparse
+import csv
+import glob
+import json
+import os
+from typing import Any
+
+
+def text_from_spans(full: str, spans: list[dict[str, Any]]) -> str:
     parts = []
     for sp in spans or []:
-        off = sp.get("offset", 0); ln = sp.get("length", 0)
-        parts.append(full[off:off+ln])
+        offset = sp.get("offset", 0)
+        length = sp.get("length", 0)
+        parts.append(full[offset : offset + length])
     return "".join(parts).strip()
 
-def table_to_tsv(tbl: Dict[str,Any], full:str)->str:
+
+def table_to_tsv(tbl: dict[str, Any], full: str) -> str:
     cells = tbl.get("cells", [])
     if not cells:
         return text_from_spans(full, tbl.get("spans", [])) or ""
-    rows = {}; max_col = 0
-    for c in cells:
-        r = c.get("rowIndex", 0); k = c.get("columnIndex", 0)
-        max_col = max(max_col, k)
-        val = c.get("content") or text_from_spans(full, c.get("spans", []))
-        rows.setdefault(r, {})[k] = (val or "").replace("\t", " ").strip()
+    rows: dict[int, dict[int, str]] = {}
+    max_col = 0
+    for cell in cells:
+        row_index = cell.get("rowIndex", 0)
+        column_index = cell.get("columnIndex", 0)
+        max_col = max(max_col, column_index)
+        value = cell.get("content") or text_from_spans(full, cell.get("spans", []))
+        rows.setdefault(row_index, {})[column_index] = (value or "").replace("\t", " ").strip()
     lines = []
-    for r in sorted(rows):
-        line = [rows[r].get(k, "") for k in range(0, max_col+1)]
+    for row_index in sorted(rows):
+        line = [rows[row_index].get(column_index, "") for column_index in range(0, max_col + 1)]
         lines.append("\t".join(line))
     return "\n".join(lines)
 
-def clean_text(s: str)->str:
-    if not s: return ""
-    s = s.replace("-\n", "").replace("\r", "")
-    return "\n".join(x.strip() for x in s.splitlines() if x.strip())
 
-def extract_rows(obj: Dict[str,Any], filename: str):
+def clean_text(value: str) -> str:
+    if not value:
+        return ""
+    value = value.replace("-\n", "").replace("\r", "")
+    return "\n".join(line.strip() for line in value.splitlines() if line.strip())
+
+
+def extract_rows(obj: dict[str, Any], filename: str) -> list[dict[str, Any]]:
     # Soporta esquemas de DI con analyzeResult o content/pages/paragraphs
     ar = obj.get("analyzeResult", obj)
     full = ar.get("content", "")
@@ -55,15 +70,17 @@ def extract_rows(obj: Dict[str,Any], filename: str):
         txt = clean_text(txt)
         if not txt:
             continue
-        out.append({
-            "file": os.path.basename(filename),
-            "doc_title": os.path.splitext(os.path.basename(filename))[0],
-            "page": page,
-            "block_type": "paragraph",
-            "role": role,
-            "section": section,
-            "content": txt
-        })
+        out.append(
+            {
+                "file": os.path.basename(filename),
+                "doc_title": os.path.splitext(os.path.basename(filename))[0],
+                "page": page,
+                "block_type": "paragraph",
+                "role": role,
+                "section": section,
+                "content": txt,
+            }
+        )
 
     # Tablas
     for t in tables:
@@ -73,15 +90,17 @@ def extract_rows(obj: Dict[str,Any], filename: str):
         txt = clean_text(table_to_tsv(t, full))
         if not txt:
             continue
-        out.append({
-            "file": os.path.basename(filename),
-            "doc_title": os.path.splitext(os.path.basename(filename))[0],
-            "page": page,
-            "block_type": "table",
-            "role": "",
-            "section": t.get("caption", "") or "",
-            "content": txt
-        })
+        out.append(
+            {
+                "file": os.path.basename(filename),
+                "doc_title": os.path.splitext(os.path.basename(filename))[0],
+                "page": page,
+                "block_type": "table",
+                "role": "",
+                "section": t.get("caption", "") or "",
+                "content": txt,
+            }
+        )
 
     # Fallback a líneas si no hay paragraphs/tables
     if not out and ar.get("pages"):
@@ -92,37 +111,51 @@ def extract_rows(obj: Dict[str,Any], filename: str):
                 txt = clean_text(txt)
                 if not txt:
                     continue
-                out.append({
-                    "file": os.path.basename(filename),
-                    "doc_title": os.path.splitext(os.path.basename(filename))[0],
-                    "page": page_num,
-                    "block_type": "line",
-                    "role": "",
-                    "section": "",
-                    "content": txt
-                })
+                out.append(
+                    {
+                        "file": os.path.basename(filename),
+                        "doc_title": os.path.splitext(os.path.basename(filename))[0],
+                        "page": page_num,
+                        "block_type": "line",
+                        "role": "",
+                        "section": "",
+                        "content": txt,
+                    }
+                )
     return out
 
-def main():
+
+def build_arg_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="DI JSON -> CSV")
-    ap.add_argument("--input", required=True, help="Ruta .json o patrón (ej.: data/limpios_json/*.json)")
-    ap.add_argument("--out", default="exports/csv/export_di.csv", help="CSV de salida (por defecto: exports/csv/export_di.csv)")
+    ap.add_argument(
+        "--input", required=True, help="Ruta .json o patrón (ej.: data/limpios_json/*.json)"
+    )
+    ap.add_argument(
+        "--out",
+        default="exports/csv/export_di.csv",
+        help="CSV de salida (por defecto: exports/csv/export_di.csv)",
+    )
     ap.add_argument("--min_chars", type=int, default=25, help="Mínimo de caracteres por fila")
-    args = ap.parse_args()
+    return ap
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_arg_parser().parse_args(argv)
 
     files = glob.glob(args.input)
     if not files:
-        raise SystemExit("Sin archivos para procesar.")
+        print("Sin archivos para procesar.")
+        return 1
 
     all_rows = []
     for f in files:
-        with open(f, "r", encoding="utf-8") as fh:
+        with open(f, encoding="utf-8") as fh:
             obj = json.load(fh)
         for r in extract_rows(obj, f):
             if len(r["content"]) >= args.min_chars:
                 all_rows.append(r)
 
-    cols = ["file","doc_title","page","block_type","role","section","content"]
+    cols = ["file", "doc_title", "page", "block_type", "role", "section", "content"]
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="") as fo:
         w = csv.DictWriter(fo, fieldnames=cols)
@@ -130,6 +163,8 @@ def main():
         w.writerows(all_rows)
 
     print(f"OK: {len(all_rows)} filas -> {os.path.abspath(args.out)}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

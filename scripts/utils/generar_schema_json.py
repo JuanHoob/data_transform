@@ -1,7 +1,8 @@
+import csv
 import json
 from pathlib import Path
+
 from genson import SchemaBuilder
-import csv
 
 
 def infer_relationships(data, parent_key=None, parent_path=None, results=None):
@@ -47,7 +48,7 @@ def generar_schemas(input_dir: Path, output_dir: Path):
         relaciones = infer_relationships(data)
         if relaciones:
             rel_path = output_dir / f"{json_file.stem}.relations.csv"
-            with open(rel_path, "w", encoding="utf-8", newline='') as rel_file:
+            with open(rel_path, "w", encoding="utf-8", newline="") as rel_file:
                 writer = csv.writer(rel_file)
                 writer.writerow(["parent_node", "child_node", "json_path"])
                 for parent, child, path in relaciones:

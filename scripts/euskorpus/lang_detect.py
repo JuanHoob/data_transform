@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 lang_detect.py - Detector de idioma por párrafo (euskera / español).
 
@@ -21,66 +20,281 @@ Uso:
 import argparse
 import json
 import re
-import sys
 import unicodedata
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
 # Stopwords de referencia
 # ---------------------------------------------------------------------------
 
 # Palabras funcionales altamente frecuentes en euskera
-_EU_STOPWORDS = frozenset({
-    "eta", "da", "ez", "bat", "zer", "nola", "baina", "ere", "zen", "dut",
-    "du", "dute", "den", "dela", "dago", "daude", "gara", "dira", "ziren",
-    "zuen", "zuten", "izango", "izaten", "behar", "baino", "bai", "hau",
-    "hori", "hura", "hauek", "horiek", "haiek", "nik", "zuk", "hark",
-    "guk", "zuek", "haiek", "nire", "zure", "bere", "gure", "zure",
-    "haien", "honetan", "horretan", "hartan", "dela", "diren", "duen",
-    "duten", "arte", "aurre", "gain", "alde", "kontra", "bidez", "baitan",
-    "bitarte", "batera", "oraindik", "orain", "bertan", "han", "hemen",
-    "oso", "asko", "gutxi", "gehiago", "gutxiago", "beti", "inoiz",
-    "egun", "urte", "aste", "hilabete", "lege", "araudi", "agindu",
-    "xedapen", "arau", "batzorde", "sail", "eusko", "jaurlaritza",
-    "herri", "euskal", "autonomia", "erkidego",
-})
+_EU_STOPWORDS = frozenset(
+    {
+        "eta",
+        "da",
+        "ez",
+        "bat",
+        "zer",
+        "nola",
+        "baina",
+        "ere",
+        "zen",
+        "dut",
+        "du",
+        "dute",
+        "den",
+        "dela",
+        "dago",
+        "daude",
+        "gara",
+        "dira",
+        "ziren",
+        "zuen",
+        "zuten",
+        "izango",
+        "izaten",
+        "behar",
+        "baino",
+        "bai",
+        "hau",
+        "hori",
+        "hura",
+        "hauek",
+        "horiek",
+        "haiek",
+        "nik",
+        "zuk",
+        "hark",
+        "guk",
+        "zuek",
+        "nire",
+        "zure",
+        "bere",
+        "gure",
+        "haien",
+        "honetan",
+        "horretan",
+        "hartan",
+        "diren",
+        "duen",
+        "duten",
+        "arte",
+        "aurre",
+        "gain",
+        "alde",
+        "kontra",
+        "bidez",
+        "baitan",
+        "bitarte",
+        "batera",
+        "oraindik",
+        "orain",
+        "bertan",
+        "han",
+        "hemen",
+        "oso",
+        "asko",
+        "gutxi",
+        "gehiago",
+        "gutxiago",
+        "beti",
+        "inoiz",
+        "egun",
+        "urte",
+        "aste",
+        "hilabete",
+        "lege",
+        "araudi",
+        "agindu",
+        "xedapen",
+        "arau",
+        "batzorde",
+        "sail",
+        "eusko",
+        "jaurlaritza",
+        "herri",
+        "euskal",
+        "autonomia",
+        "erkidego",
+    }
+)
 
 # Palabras funcionales altamente frecuentes en español
-_ES_STOPWORDS = frozenset({
-    "de", "la", "el", "en", "y", "a", "los", "del", "se", "las",
-    "un", "por", "con", "una", "su", "al", "lo", "como", "más",
-    "pero", "sus", "le", "ya", "o", "fue", "este", "ha", "sí",
-    "porque", "esta", "son", "entre", "cuando", "muy", "sin",
-    "sobre", "también", "me", "hasta", "hay", "donde", "quien",
-    "desde", "todo", "nos", "durante", "estados", "todos", "uno",
-    "les", "ni", "contra", "otros", "ese", "eso", "ante", "ellos",
-    "e", "esto", "mí", "antes", "algunos", "qué", "unos", "yo",
-    "otro", "otras", "él", "tanto", "esa", "estos", "mucho", "quienes",
-    "ley", "decreto", "reglamento", "artículo", "gobierno", "vasco",
-    "euskadi", "disposición", "normativa",
-})
+_ES_STOPWORDS = frozenset(
+    {
+        "de",
+        "la",
+        "el",
+        "en",
+        "y",
+        "a",
+        "los",
+        "del",
+        "se",
+        "las",
+        "un",
+        "por",
+        "con",
+        "una",
+        "su",
+        "al",
+        "lo",
+        "como",
+        "más",
+        "pero",
+        "sus",
+        "le",
+        "ya",
+        "o",
+        "fue",
+        "este",
+        "ha",
+        "sí",
+        "porque",
+        "esta",
+        "son",
+        "entre",
+        "cuando",
+        "muy",
+        "sin",
+        "sobre",
+        "también",
+        "me",
+        "hasta",
+        "hay",
+        "donde",
+        "quien",
+        "desde",
+        "todo",
+        "nos",
+        "durante",
+        "estados",
+        "todos",
+        "uno",
+        "les",
+        "ni",
+        "contra",
+        "otros",
+        "ese",
+        "eso",
+        "ante",
+        "ellos",
+        "e",
+        "esto",
+        "mí",
+        "antes",
+        "algunos",
+        "qué",
+        "unos",
+        "yo",
+        "otro",
+        "otras",
+        "él",
+        "tanto",
+        "esa",
+        "estos",
+        "mucho",
+        "quienes",
+        "ley",
+        "decreto",
+        "reglamento",
+        "artículo",
+        "gobierno",
+        "vasco",
+        "euskadi",
+        "disposición",
+        "normativa",
+    }
+)
 
 # ---------------------------------------------------------------------------
 # N-gramas de caracteres (bigramas/trigramas  típicos de cada idioma)
 # ---------------------------------------------------------------------------
 
 # Trigramas muy frecuentes en euskera (corpus BOPV)
-_EU_TRIGRAMS = frozenset({
-    "ari", "era", "ren", "ean", "tze", "nda", "eko", "eta", "ain",
-    "kor", "arr", "irr", "zko", "ald", "ber", "har", "tar", "lar",
-    "egi", "len", "bat", "ara", "kin", "all", "urr", "gai", "kon",
-    "ran", "dak", "rak", "rre", "tik", "tzu", "zut", "uts",
-})
+_EU_TRIGRAMS = frozenset(
+    {
+        "ari",
+        "era",
+        "ren",
+        "ean",
+        "tze",
+        "nda",
+        "eko",
+        "eta",
+        "ain",
+        "kor",
+        "arr",
+        "irr",
+        "zko",
+        "ald",
+        "ber",
+        "har",
+        "tar",
+        "lar",
+        "egi",
+        "len",
+        "bat",
+        "ara",
+        "kin",
+        "all",
+        "urr",
+        "gai",
+        "kon",
+        "ran",
+        "dak",
+        "rak",
+        "rre",
+        "tik",
+        "tzu",
+        "zut",
+        "uts",
+    }
+)
 
 # Trigramas muy frecuentes en español
-_ES_TRIGRAMS = frozenset({
-    "ión", "de ", " de", "los", "las", "que", " la", "la ", " el",
-    "el ", "nte", "ció", "est", "del", "con", "ado", "ara", "nte",
-    "ien", "ter", "par", " en", "en ", "pro", "tra", "mie", "nto",
-    "ect", "pre", "res", "com", "are", "ble", "ber", "uci", " es",
-    "es ", "ste", "aci",
-})
+_ES_TRIGRAMS = frozenset(
+    {
+        "ión",
+        "de ",
+        " de",
+        "los",
+        "las",
+        "que",
+        " la",
+        "la ",
+        " el",
+        "el ",
+        "nte",
+        "ció",
+        "est",
+        "del",
+        "con",
+        "ado",
+        "ara",
+        "ien",
+        "ter",
+        "par",
+        " en",
+        "en ",
+        "pro",
+        "tra",
+        "mie",
+        "nto",
+        "ect",
+        "pre",
+        "res",
+        "com",
+        "are",
+        "ble",
+        "ber",
+        "uci",
+        " es",
+        "es ",
+        "ste",
+        "aci",
+    }
+)
 
 # ---------------------------------------------------------------------------
 # Características ortográficas
@@ -88,20 +302,20 @@ _ES_TRIGRAMS = frozenset({
 
 # Patrones morfológicos exclusivos del euskera
 _EU_PATTERNS = [
-    re.compile(r"\b\w+(?:arena|aren|arenak|arengandik|arentzat)\b"),   # genitivos
-    re.compile(r"\b\w+(?:ekin|tzeko|tzean|tzetik|tzera)\b"),           # sufijos verbales
-    re.compile(r"\b(?:ez|bai|baina|ere|ere\s+bai)\b"),                 # partículas
-    re.compile(r"\b\w+(?:ko|ka|ke|ki)\b"),                             # locativos
-    re.compile(r"(?:tt|dd|rr|ts|tz|tx)"),                              # grupos consonánticos eu
-    re.compile(r"\b\w*(?:urruntze|bilketa|aginpide|eskumen)\w*\b"),    # admin. euskera
+    re.compile(r"\b\w+(?:arena|aren|arenak|arengandik|arentzat)\b"),  # genitivos
+    re.compile(r"\b\w+(?:ekin|tzeko|tzean|tzetik|tzera)\b"),  # sufijos verbales
+    re.compile(r"\b(?:ez|bai|baina|ere|ere\s+bai)\b"),  # partículas
+    re.compile(r"\b\w+(?:ko|ka|ke|ki)\b"),  # locativos
+    re.compile(r"(?:tt|dd|rr|ts|tz|tx)"),  # grupos consonánticos eu
+    re.compile(r"\b\w*(?:urruntze|bilketa|aginpide|eskumen)\w*\b"),  # admin. euskera
 ]
 
 # Patrones morfológicos propios del español
 _ES_PATTERNS = [
     re.compile(r"\b\w+(?:ción|ciones|miento|mientos|idad|idades)\b"),
     re.compile(r"\b(?:él|más|así|también|además|según|través)\b"),
-    re.compile(r"\b\w+(?:ando|endo|iendo)\b"),                         # gerundios
-    re.compile(r"¿|¡"),                                                 # puntuación esp.
+    re.compile(r"\b\w+(?:ando|endo|iendo)\b"),  # gerundios
+    re.compile(r"¿|¡"),  # puntuación esp.
     re.compile(r"\b(?:artículo|decreto|ley|reglamento|disposición)\b", re.IGNORECASE),
 ]
 
@@ -120,7 +334,7 @@ def _normalize(text: str) -> str:
     return text.strip()
 
 
-def _score_stopwords(tokens: List[str], stopwords: frozenset) -> float:
+def _score_stopwords(tokens: list[str], stopwords: frozenset) -> float:
     """Fracción de tokens que pertenecen al conjunto de stopwords."""
     if not tokens:
         return 0.0
@@ -137,7 +351,7 @@ def _score_trigrams(text: str, trigrams: frozenset) -> float:
     return hits / len(all_tg)
 
 
-def _score_patterns(text: str, patterns: List[re.Pattern]) -> float:
+def _score_patterns(text: str, patterns: list[re.Pattern]) -> float:
     """Número de patrones morfológicos que coinciden (normalizado)."""
     total = sum(len(p.findall(text)) for p in patterns)
     words = len(text.split())
@@ -156,7 +370,7 @@ _W_TRIGRAM = 0.30
 _W_PATTERN = 0.25
 
 
-def detect_language(text: str, min_chars: int = 15) -> Dict:
+def detect_language(text: str, min_chars: int = 15) -> dict:
     """
     Detecta el idioma de un fragmento de texto.
 
@@ -173,7 +387,12 @@ def detect_language(text: str, min_chars: int = 15) -> Dict:
     """
     text = text.strip()
     if len(text) < min_chars:
-        return {"language": "unknown", "confidence": 0.0, "scores": {"eu": 0.0, "es": 0.0}, "method": "too_short"}
+        return {
+            "language": "unknown",
+            "confidence": 0.0,
+            "scores": {"eu": 0.0, "es": 0.0},
+            "method": "too_short",
+        }
 
     # 1. Intentar con librería externa si está disponible
     external = _try_external_detector(text)
@@ -198,7 +417,12 @@ def detect_language(text: str, min_chars: int = 15) -> Dict:
 
     total = score_eu + score_es
     if total < 1e-9:
-        return {"language": "unknown", "confidence": 0.0, "scores": {"eu": 0.0, "es": 0.0}, "method": "internal"}
+        return {
+            "language": "unknown",
+            "confidence": 0.0,
+            "scores": {"eu": 0.0, "es": 0.0},
+            "method": "internal",
+        }
 
     conf_eu = score_eu / total
     conf_es = score_es / total
@@ -220,10 +444,10 @@ def detect_language(text: str, min_chars: int = 15) -> Dict:
     }
 
 
-def _try_external_detector(text: str) -> Optional[Dict]:
+def _try_external_detector(text: str) -> dict | None:
     """Intenta usar langdetect o langid si están instalados."""
     try:
-        from langdetect import detect, detect_langs  # type: ignore
+        from langdetect import detect_langs  # type: ignore
 
         results = detect_langs(text)
         for r in results:
@@ -231,7 +455,9 @@ def _try_external_detector(text: str) -> Optional[Dict]:
                 return {
                     "language": r.lang,
                     "confidence": round(r.prob, 4),
-                    "scores": {rr.lang: round(rr.prob, 4) for rr in results if rr.lang in ("eu", "es")},
+                    "scores": {
+                        rr.lang: round(rr.prob, 4) for rr in results if rr.lang in ("eu", "es")
+                    },
                     "method": "langdetect",
                 }
     except Exception:
@@ -259,7 +485,7 @@ def _try_external_detector(text: str) -> Optional[Dict]:
 # ---------------------------------------------------------------------------
 
 
-def annotate_document(doc: Dict, field: str = "paragraphs") -> Dict:
+def annotate_document(doc: dict, field: str = "paragraphs") -> dict:
     """
     Añade anotaciones de idioma a cada párrafo de un documento.
 
@@ -295,7 +521,7 @@ def annotate_document(doc: Dict, field: str = "paragraphs") -> Dict:
         )
 
     # Calcular idioma dominante
-    lang_counts: Dict[str, int] = {}
+    lang_counts: dict[str, int] = {}
     for ann in annotations:
         lang = ann["language"]
         lang_counts[lang] = lang_counts.get(lang, 0) + 1
@@ -315,9 +541,9 @@ def annotate_document(doc: Dict, field: str = "paragraphs") -> Dict:
     return doc
 
 
-def process_json_file(input_path: Path, output_path: Optional[Path], field: str) -> Dict:
+def process_json_file(input_path: Path, output_path: Path | None, field: str) -> dict:
     """Lee un JSON, anota idioma por párrafo y guarda el resultado."""
-    with open(input_path, "r", encoding="utf-8") as fh:
+    with open(input_path, encoding="utf-8") as fh:
         doc = json.load(fh)
 
     annotated = annotate_document(doc, field)
@@ -370,8 +596,13 @@ def main() -> int:
         if args.json_out:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
-            print(f"Idioma: {result['language']}  (confianza: {result['confidence']:.0%}, método: {result['method']})")
-            print(f"Puntuaciones — eu: {result['scores']['eu']:.4f}  es: {result['scores']['es']:.4f}")
+            print(
+                f"Idioma: {result['language']}  "
+                f"(confianza: {result['confidence']:.0%}, método: {result['method']})"
+            )
+            print(
+                f"Puntuaciones — eu: {result['scores']['eu']:.4f}  es: {result['scores']['es']:.4f}"
+            )
         return 0
 
     if args.file:
@@ -379,7 +610,10 @@ def main() -> int:
         output_path = Path(args.output) if args.output else None
         annotated = process_json_file(input_path, output_path, args.field)
         ann = annotated.get("language_annotations", {})
-        print(f"Idioma dominante: {ann.get('dominant_language')}  (ratio eu: {ann.get('eu_ratio', 0):.0%})")
+        print(
+            f"Idioma dominante: {ann.get('dominant_language')}  "
+            f"(ratio eu: {ann.get('eu_ratio', 0):.0%})"
+        )
         print(f"Párrafos anotados: {len(ann.get('paragraphs', []))}")
         return 0
 
@@ -388,4 +622,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

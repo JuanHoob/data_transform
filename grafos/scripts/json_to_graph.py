@@ -5,17 +5,15 @@ Genera nodos estructurales (dict/list) y almacena valores primitivos como propie
 Evita explosión de nodos innecesarios.
 """
 
-import json
-import csv
-import sys
 import argparse
-from pathlib import Path
-from typing import Dict, List, Any, Tuple, Set
-from collections import defaultdict
+import csv
+import json
 from datetime import datetime
-
+from pathlib import Path
+from typing import Any
 
 # ---------- FUNCIONES BASE ----------
+
 
 def sanitize_csv_value(value: Any) -> str:
     """
@@ -24,7 +22,7 @@ def sanitize_csv_value(value: Any) -> str:
     """
     if value is None:
         return ""
-    
+
     str_value = str(value)
     # Escapar comillas dobles duplicándolas (RFC 4180)
     str_value = str_value.replace('"', '""')
@@ -38,33 +36,42 @@ def sanitize_path(path: str) -> str:
     """
     if not path:
         return ""
-    return (path
-            .replace(".", "_")
-            .replace("[", "_")
-            .replace("]", "")
-            .replace(" ", "_")
-            .replace("-", "_")
-            .replace("/", "_")
-            .strip("_"))
+    return (
+        path.replace(".", "_")
+        .replace("[", "_")
+        .replace("]", "")
+        .replace(" ", "_")
+        .replace("-", "_")
+        .replace("/", "_")
+        .strip("_")
+    )
 
 
-def load_json_file(file_path: str) -> Dict[str, Any]:
+def load_json_file(file_path: str) -> dict[str, Any]:
     """Carga un archivo JSON con manejo de errores."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
         print(f"❌ Error al cargar {file_path}: {e}")
         return {}
 
 
-def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
-                  nodes: Dict[str, Dict[str, Any]], relationships: List[Dict[str, Any]],
-                  seen_ids: Set[str], depth: int = 0, max_depth: int = 50):
+def traverse_json(
+    obj: Any,
+    parent_id: str,
+    source_file: str,
+    path: str,
+    nodes: dict[str, dict[str, Any]],
+    relationships: list[dict[str, Any]],
+    seen_ids: set[str],
+    depth: int = 0,
+    max_depth: int = 50,
+):
     """
     Recorre recursivamente el JSON generando nodos solo para estructuras (dict/list).
     Los valores primitivos se almacenan como propiedades del nodo padre.
-    
+
     Args:
         obj: Objeto JSON actual
         parent_id: ID del nodo padre
@@ -80,12 +87,12 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
     if depth > max_depth:
         print(f"  ⚠️  Profundidad máxima alcanzada ({max_depth}) en path: {path}")
         return
-    
+
     if isinstance(obj, dict):
         # Crear nodo para el diccionario
         safe_path = sanitize_path(path) if path else "root"
         node_id = f"{source_file}_{safe_path}"
-        
+
         if node_id not in seen_ids:
             seen_ids.add(node_id)
             node = {
@@ -95,45 +102,56 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
                 "source": source_file,
                 "type": "dict",
                 "path": path,
-                "depth": str(depth)
+                "depth": str(depth),
             }
-            
+
             # Agregar valores primitivos como propiedades del nodo
             for key, value in obj.items():
                 if not isinstance(value, (dict, list)):
                     # Valores primitivos: número, string, booleano, null, etc.
                     safe_key = f"prop_{sanitize_path(key)}"
                     node[safe_key] = str(value)
-                elif isinstance(value, list) and value and not any(isinstance(item, (dict, list)) for item in value):
+                elif (
+                    isinstance(value, list)
+                    and value
+                    and not any(isinstance(item, (dict, list)) for item in value)
+                ):
                     # Lista de primitivos: serializar separados por semicolon
                     safe_key = f"prop_{sanitize_path(key)}"
                     node[safe_key] = "; ".join(str(item) for item in value)
-            
+
             nodes[node_id] = node
 
             if parent_id and parent_id != node_id:
-                relationships.append({
-                    "start_id": parent_id,
-                    "end_id": node_id,
-                    "type": "TIENE",
-                    "properties": ""
-                })
+                relationships.append(
+                    {"start_id": parent_id, "end_id": node_id, "type": "TIENE", "properties": ""}
+                )
 
         # Recorrer hijos que sean estructuras
         for key, value in obj.items():
             if isinstance(value, (dict, list)):
                 child_path = f"{path}.{key}" if path else key
-                traverse_json(value, node_id, source_file, child_path, nodes, relationships, seen_ids, depth + 1, max_depth)
+                traverse_json(
+                    value,
+                    node_id,
+                    source_file,
+                    child_path,
+                    nodes,
+                    relationships,
+                    seen_ids,
+                    depth + 1,
+                    max_depth,
+                )
 
     elif isinstance(obj, list):
         # Para listas: solo crear nodos si contienen estructuras complejas
         has_structures = any(isinstance(item, (dict, list)) for item in obj)
-        
+
         if has_structures:
             # Crear nodo para la lista
             safe_path = sanitize_path(path)
             list_node_id = f"{source_file}_{safe_path}"
-            
+
             if list_node_id not in seen_ids:
                 seen_ids.add(list_node_id)
                 nodes[list_node_id] = {
@@ -144,32 +162,46 @@ def traverse_json(obj: Any, parent_id: str, source_file: str, path: str,
                     "type": "list",
                     "path": path,
                     "length": str(len(obj)),
-                    "depth": str(depth)
+                    "depth": str(depth),
                 }
-                
+
                 if parent_id and parent_id != list_node_id:
-                    relationships.append({
-                        "start_id": parent_id,
-                        "end_id": list_node_id,
-                        "type": "TIENE",
-                        "properties": ""
-                    })
-            
+                    relationships.append(
+                        {
+                            "start_id": parent_id,
+                            "end_id": list_node_id,
+                            "type": "TIENE",
+                            "properties": "",
+                        }
+                    )
+
             # Procesar items que sean estructuras
             for i, item in enumerate(obj):
                 if isinstance(item, (dict, list)):
                     item_path = f"{path}[{i}]"
-                    traverse_json(item, list_node_id, source_file, item_path, nodes, relationships, seen_ids, depth + 1, max_depth)
+                    traverse_json(
+                        item,
+                        list_node_id,
+                        source_file,
+                        item_path,
+                        nodes,
+                        relationships,
+                        seen_ids,
+                        depth + 1,
+                        max_depth,
+                    )
         else:
             # Lista de primitivos: por ahora no guardamos para evitar JSON embebido
             pass
 
 
-def extract_nodes_and_relationships(data: Dict[str, Any], source_file: str, max_depth: int = 50) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def extract_nodes_and_relationships(
+    data: dict[str, Any], source_file: str, max_depth: int = 50
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """
     Extrae nodos estructurales y relaciones de un JSON.
     Evita crear nodos para valores primitivos (se almacenan como propiedades).
-    
+
     Args:
         data: Datos JSON a procesar
         source_file: Nombre del archivo de origen
@@ -189,97 +221,99 @@ def extract_nodes_and_relationships(data: Dict[str, Any], source_file: str, max_
         "source": source_file,
         "type": "root",
         "path": "",
-        "depth": "0"
+        "depth": "0",
     }
 
     traverse_json(data, root_id, source_file, "", nodes_dict, relationships, seen_ids, 0, max_depth)
-    
+
     return list(nodes_dict.values()), relationships
 
 
-def write_nodes_csv(nodes: List[Dict[str, Any]], filepath: Path):
+def write_nodes_csv(nodes: list[dict[str, Any]], filepath: Path):
     """Escribe los nodos en CSV con todas las columnas detectadas."""
     if not nodes:
         print("  ⚠️  No hay nodos para escribir")
         return
-    
+
     # Detectar todas las claves únicas en los nodos
     all_keys = set()
     for node in nodes:
         all_keys.update(node.keys())
-    
+
     fieldnames = ["id", "label", "name", "source", "type", "path", "depth"]
     # Agregar columnas adicionales al final
     for key in sorted(all_keys):
         if key not in fieldnames:
             fieldnames.append(key)
-    
-    with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore', quoting=csv.QUOTE_MINIMAL)
+
+    with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(
+            csvfile, fieldnames=fieldnames, extrasaction="ignore", quoting=csv.QUOTE_MINIMAL
+        )
         writer.writeheader()
-        
+
         for node in nodes:
             safe_node = {k: sanitize_csv_value(v) for k, v in node.items()}
             writer.writerow(safe_node)
-    
+
     # Escribir metadatos en archivo JSON separado (CSV-lint compatible)
-    metadata_path = filepath.with_suffix('.metadata.json')
+    metadata_path = filepath.with_suffix(".metadata.json")
     metadata = {
         "generated_by": Path(__file__).name,
-        "generated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "total_nodes": len(nodes),
         "columns": fieldnames,
         "file_type": "nodes",
-        "csv_file": filepath.name
+        "csv_file": filepath.name,
     }
-    with open(metadata_path, 'w', encoding='utf-8') as metafile:
+    with open(metadata_path, "w", encoding="utf-8") as metafile:
         json.dump(metadata, metafile, indent=2, ensure_ascii=False)
-    
+
     print(f"  Nodos escritos: {len(nodes)}")
 
 
-def write_relationships_csv(relationships: List[Dict[str, Any]], filepath: Path):
+def write_relationships_csv(relationships: list[dict[str, Any]], filepath: Path):
     """Escribe las relaciones en CSV."""
     if not relationships:
         print("  ADVERTENCIA: No hay relaciones para escribir")
         return
-    
-    with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+
+    with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
         fieldnames = ["start_id", "end_id", "type", "properties"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_MINIMAL)
         writer.writeheader()
-        
+
         for rel in relationships:
             safe_rel = {k: sanitize_csv_value(v) for k, v in rel.items()}
             writer.writerow(safe_rel)
-    
+
     # Escribir metadatos en archivo JSON separado (CSV-lint compatible)
-    metadata_path = filepath.with_suffix('.metadata.json')
-    
+    metadata_path = filepath.with_suffix(".metadata.json")
+
     # Contar tipos de relaciones
     rel_types = {}
     for rel in relationships:
         rel_type = rel.get("type", "UNKNOWN")
         rel_types[rel_type] = rel_types.get(rel_type, 0) + 1
-    
+
     metadata = {
         "generated_by": Path(__file__).name,
-        "generated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "total_relationships": len(relationships),
         "relationship_types": rel_types,
         "file_type": "relationships",
-        "csv_file": filepath.name
+        "csv_file": filepath.name,
     }
-    with open(metadata_path, 'w', encoding='utf-8') as metafile:
+    with open(metadata_path, "w", encoding="utf-8") as metafile:
         json.dump(metadata, metafile, indent=2, ensure_ascii=False)
-    
+
     print(f"  Relaciones escritas: {len(relationships)}")
 
 
 def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
     """
     Procesa todos los archivos JSON de un directorio.
-    
+
     Args:
         input_dir: Directorio de entrada con archivos JSON
         output_dir: Directorio de salida para CSV
@@ -293,7 +327,7 @@ def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
         return
 
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     total_nodes = 0
     total_rels = 0
     processed_files = 0
@@ -310,20 +344,20 @@ def process_json_files(input_dir: str, output_dir: str, max_depth: int = 50):
 
         write_nodes_csv(nodes, nodes_file)
         write_relationships_csv(relationships, rels_file)
-        
+
         total_nodes += len(nodes)
         total_rels += len(relationships)
         processed_files += 1
 
         print(f"OK - Generados: {nodes_file.name}, {rels_file.name}")
-    
-    print(f"\n{'='*60}")
-    print(f"Transformacion completada:")
+
+    print(f"\n{'=' * 60}")
+    print("Transformacion completada:")
     print(f"   Archivos procesados: {processed_files}")
     print(f"   Total nodos: {total_nodes}")
     print(f"   Total relaciones: {total_rels}")
     print(f"   Profundidad maxima: {max_depth}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
 
 def main():
@@ -337,19 +371,20 @@ Ejemplos de uso:
   %(prog)s /ruta/entrada /ruta/salida
   %(prog)s --max-depth 30
   %(prog)s /ruta/entrada /ruta/salida --max-depth 20
-        """
+        """,
     )
     parser.add_argument("input_dir", nargs="?", help="Directorio con archivos JSON de entrada")
     parser.add_argument("output_dir", nargs="?", help="Directorio para archivos CSV de salida")
-    parser.add_argument("--max-depth", type=int, default=50, 
-                        help="Profundidad máxima de recursión (default: 50)")
-    
+    parser.add_argument(
+        "--max-depth", type=int, default=50, help="Profundidad máxima de recursión (default: 50)"
+    )
+
     args = parser.parse_args()
-    
+
     print("=" * 60)
     print("JSON to Neo4j Graph Converter")
     print("=" * 60)
-    
+
     if args.input_dir and args.output_dir:
         input_dir = args.input_dir
         output_dir = args.output_dir
@@ -359,10 +394,10 @@ Ejemplos de uso:
         base_dir = Path(__file__).parent.parent.parent  # asume estructura data_transform/
         input_dir = str(base_dir / "data" / "limpios_json")
         output_dir = str(base_dir / "grafos" / "datos_grafos")
-        print(f"Usando rutas por defecto:")
+        print("Usando rutas por defecto:")
         print(f"   Entrada: {input_dir}")
         print(f"   Salida: {output_dir}")
-    
+
     print(f"Profundidad maxima: {args.max_depth}")
 
     process_json_files(input_dir, output_dir, args.max_depth)

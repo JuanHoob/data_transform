@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Filtro de limpieza para JSON (Azure DI / OCR / genéricos).
 
@@ -33,19 +32,25 @@ Uso típico (PowerShell):
       --overwrite
 
 Para un archivo concreto:
-  python scripts/limpiezaD/clean_json_text.py --in data\\brutos_json\\archivo.json --out data\\limpios_json --report info_doc\\clean_report.csv --overwrite
+  python scripts/limpiezaD/clean_json_text.py `
+      --in data\\brutos_json\\archivo.json `
+      --out data\\limpios_json `
+      --report info_doc\\clean_report.csv `
+      --overwrite
 
-Requisitos: solo librerías estándar (argparse, json, unicodedata, etc.). PyYAML opcional si usas --rules.
+Requisitos: librería estándar; PyYAML opcional si usas --rules.
 """
 
 from __future__ import annotations
+
 import argparse
 import json
 import os
 import re
 import sys
 import unicodedata
-from typing import Any, Dict, Iterable, Tuple, List, Union
+from collections.abc import Iterable
+from typing import Any
 
 try:
     import yaml  # opcional
@@ -60,20 +65,24 @@ except Exception:
 _ALLOWED_CONTROLS = {"\n", "\t"}
 
 # Mapeos comunes de glifos problemáticos -> equivalentes
-COMMON_MAP: Dict[str, str] = {
-    "\u00A0": " ",   # NBSP
-    "\u2007": " ",   # Figure space
-    "\u2009": " ",   # Thin space
-    "\u202F": " ",   # Narrow NBSP
-    "\u200B": "",    # Zero-width space
-    "\u200C": "",    # ZWNJ
-    "\u200D": "",    # ZWJ
-    "\u2060": "",    # Word joiner
-    "\uFEFF": "",    # BOM
-
-    "“": "\"", "”": "\"", "„": "\"",
-    "‘": "'",  "’": "'",
-    "‐": "-", "–": "-", "—": "-",
+COMMON_MAP: dict[str, str] = {
+    "\u00a0": " ",  # NBSP
+    "\u2007": " ",  # Figure space
+    "\u2009": " ",  # Thin space
+    "\u202f": " ",  # Narrow NBSP
+    "\u200b": "",  # Zero-width space
+    "\u200c": "",  # ZWNJ
+    "\u200d": "",  # ZWJ
+    "\u2060": "",  # Word joiner
+    "\ufeff": "",  # BOM
+    "“": '"',
+    "”": '"',
+    "„": '"',
+    "‘": "'",
+    "’": "'",
+    "‐": "-",
+    "–": "-",
+    "—": "-",
     "…": "...",
 }
 
@@ -82,7 +91,15 @@ RE_SPACES = re.compile(r"[ \t\u00A0\u2000-\u200B\u202F\u2060\uFEFF]+")
 
 # Claves típicas de texto (si se usa --keys-only)
 LIKELY_TEXT_KEYS = {
-    "text", "content", "value", "line", "paragraph", "span", "title", "caption", "heading"
+    "text",
+    "content",
+    "value",
+    "line",
+    "paragraph",
+    "span",
+    "title",
+    "caption",
+    "heading",
 }
 
 
@@ -90,23 +107,24 @@ LIKELY_TEXT_KEYS = {
 # Utilidades
 # ----------------------------
 
-def load_rules(path: str | None) -> Dict[str, Any]:
+
+def load_rules(path: str | None) -> dict[str, Any]:
     """Carga mapa/flags desde YAML opcional: { replace: {from: to}, keep_controls: [..] }."""
     if not path:
         return {}
     if yaml is None:
         print("[WARN] PyYAML no instalado; ignorando --rules.", file=sys.stderr)
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
 def is_allowed_char(ch: str, allowed_controls: Iterable[str]) -> bool:
-    """Permite letras, números, puntuación normal; bloquea controles (salvo permitidos), PUA y no-asignados."""
+    """Permite texto normal y bloquea controles, PUA y no-asignados."""
     if ch in allowed_controls:
         return True
     cat = unicodedata.category(ch)
-    if cat == "Cc":   # control char
+    if cat == "Cc":  # control char
         return False
     if cat in {"Cs", "Cn"}:  # surrogate / unassigned
         return False
@@ -117,7 +135,7 @@ def is_allowed_char(ch: str, allowed_controls: Iterable[str]) -> bool:
     return True
 
 
-def apply_common_map(s: str, mapping: Dict[str, str]) -> Tuple[str, int]:
+def apply_common_map(s: str, mapping: dict[str, str]) -> tuple[str, int]:
     """Aplica reemplazos de COMMON_MAP y devuelve (texto, chars_mapeados)."""
     if not mapping:
         return s, 0
@@ -133,10 +151,8 @@ def apply_common_map(s: str, mapping: Dict[str, str]) -> Tuple[str, int]:
 
 
 def clean_string(
-    s: str,
-    mapping: Dict[str, str],
-    allowed_controls: Iterable[str]
-) -> Tuple[str, Dict[str, int]]:
+    s: str, mapping: dict[str, str], allowed_controls: Iterable[str]
+) -> tuple[str, dict[str, int]]:
     """Limpia una cadena y devuelve (texto_limpio, métricas)."""
     orig_len = len(s)
     metrics = {
@@ -184,7 +200,13 @@ def should_clean_key(key: Any, keys_only: bool, allowed_keys: set[str]) -> bool:
     return False
 
 
-def walk_and_clean(obj: Any, keys_only: bool, allowed_keys: set[str], mapping: Dict[str, str], allowed_controls: Iterable[str]) -> Tuple[Any, Dict[str, int]]:
+def walk_and_clean(
+    obj: Any,
+    keys_only: bool,
+    allowed_keys: set[str],
+    mapping: dict[str, str],
+    allowed_controls: Iterable[str],
+) -> tuple[Any, dict[str, int]]:
     """Recorre el objeto, limpia strings y acumula métricas globales."""
     agg = {
         "strings_total": 0,
@@ -193,11 +215,11 @@ def walk_and_clean(obj: Any, keys_only: bool, allowed_keys: set[str], mapping: D
         "chars_mapped": 0,
     }
 
-    def merge(m: Dict[str, int]):
-        agg["strings_total"]   += 1
+    def merge(m: dict[str, int]):
+        agg["strings_total"] += 1
         agg["strings_changed"] += m.get("changed", 0)
-        agg["chars_removed"]   += m.get("chars_removed", 0)
-        agg["chars_mapped"]    += m.get("chars_mapped", 0)
+        agg["chars_removed"] += m.get("chars_removed", 0)
+        agg["chars_mapped"] += m.get("chars_mapped", 0)
 
     if isinstance(obj, dict):
         out = {}
@@ -221,7 +243,9 @@ def walk_and_clean(obj: Any, keys_only: bool, allowed_keys: set[str], mapping: D
                 out_list.append(cleaned)
                 merge(m)
             else:
-                new_item, subm = walk_and_clean(item, keys_only, allowed_keys, mapping, allowed_controls)
+                new_item, subm = walk_and_clean(
+                    item, keys_only, allowed_keys, mapping, allowed_controls
+                )
                 out_list.append(new_item)
                 for kk in agg:
                     agg[kk] += subm.get(kk, 0)
@@ -258,23 +282,60 @@ def ensure_dir(path: str) -> None:
 # CLI
 # ----------------------------
 
-def parse_args() -> argparse.Namespace:
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Limpieza de JSON (Unicode/textos problemáticos).")
-    ap.add_argument("--in", dest="in_path", required=True, help="Archivo JSON o carpeta (p. ej., data/brutos_json)")
-    ap.add_argument("--out", dest="out_dir", default="data/limpios_json", help="Carpeta de salida (por defecto: data/limpios_json)")
-    ap.add_argument("--report", default="info_doc/clean_report.csv", help="CSV de métricas (por defecto: info_doc/clean_report.csv)")
-    ap.add_argument("--ext", default=".json", help="Extensión a filtrar cuando --in es carpeta (por defecto: .json)")
+    ap.add_argument(
+        "--in",
+        dest="in_path",
+        required=True,
+        help="Archivo JSON o carpeta (p. ej., data/brutos_json)",
+    )
+    ap.add_argument(
+        "--out",
+        dest="out_dir",
+        default="data/limpios_json",
+        help="Carpeta de salida (por defecto: data/limpios_json)",
+    )
+    ap.add_argument(
+        "--report",
+        default="info_doc/clean_report.csv",
+        help="CSV de métricas (por defecto: info_doc/clean_report.csv)",
+    )
+    ap.add_argument(
+        "--ext",
+        default=".json",
+        help="Extensión a filtrar cuando --in es carpeta (por defecto: .json)",
+    )
     ap.add_argument("--overwrite", action="store_true", help="Sobrescribe si el destino ya existe")
-    ap.add_argument("--dry-run", action="store_true", help="No escribe archivos, solo calcula métricas")
-    ap.add_argument("--keys-only", action="count", default=0,
-                    help="Limpiar solo claves de texto típicas (usa una vez). Usa dos veces para pasar una lista personalizada vía --keys.")
-    ap.add_argument("--keys", nargs="*", default=None, help="Lista de claves a limpiar cuando usas --keys-only dos veces")
-    ap.add_argument("--rules", default=None, help="YAML opcional con {replace: {from: to}, keep_controls: ['\\n','\\t']}")
-    return ap.parse_args()
+    ap.add_argument(
+        "--dry-run", action="store_true", help="No escribe archivos, solo calcula métricas"
+    )
+    ap.add_argument(
+        "--keys-only",
+        action="count",
+        default=0,
+        help=(
+            "Limpiar solo claves de texto típicas. Usa dos veces para pasar "
+            "una lista personalizada vía --keys."
+        ),
+    )
+    ap.add_argument(
+        "--keys",
+        nargs="*",
+        default=None,
+        help="Lista de claves a limpiar cuando usas --keys-only dos veces",
+    )
+    ap.add_argument(
+        "--rules",
+        default=None,
+        help="YAML opcional con {replace: {from: to}, keep_controls: ['\\n','\\t']}",
+    )
+    return ap.parse_args(argv)
 
 
-def main():
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
 
     # Reglas opcionales
     rules = load_rules(args.rules)
@@ -296,19 +357,27 @@ def main():
     input_paths = list(iter_input_paths(args.in_path, args.ext))
     if not input_paths:
         print("No hay entradas que procesar.", file=sys.stderr)
-        sys.exit(2)
+        return 2
 
     if not args.dry_run:
         ensure_dir(args.out_dir)
         ensure_dir(os.path.dirname(args.report))
 
     # Reporte
-    header = ["file_in", "file_out", "strings_total", "strings_changed", "chars_removed", "chars_mapped", "written"]
-    report_rows: List[List[Union[str, int]]] = []
+    header = [
+        "file_in",
+        "file_out",
+        "strings_total",
+        "strings_changed",
+        "chars_removed",
+        "chars_mapped",
+        "written",
+    ]
+    report_rows: list[list[str | int]] = []
 
     for src in input_paths:
         try:
-            with open(src, "r", encoding="utf-8") as f:
+            with open(src, encoding="utf-8") as f:
                 obj = json.load(f)
         except Exception as e:
             print(f"[WARN] No se pudo leer {src}: {e}", file=sys.stderr)
@@ -319,7 +388,7 @@ def main():
             keys_only=bool(args.keys_only),
             allowed_keys=allowed_keys,
             mapping=mapping,
-            allowed_controls=allowed_controls
+            allowed_controls=allowed_controls,
         )
 
         # Destino
@@ -343,24 +412,30 @@ def main():
                 except Exception as e:
                     print(f"[ERR ] No se pudo escribir {dst}: {e}", file=sys.stderr)
 
-        report_rows.append([
-            os.path.relpath(src),
-            os.path.relpath(dst) if not args.dry_run else "",
-            metrics["strings_total"],
-            metrics["strings_changed"],
-            metrics["chars_removed"],
-            metrics["chars_mapped"],
-            written
-        ])
+        report_rows.append(
+            [
+                os.path.relpath(src),
+                os.path.relpath(dst) if not args.dry_run else "",
+                metrics["strings_total"],
+                metrics["strings_changed"],
+                metrics["chars_removed"],
+                metrics["chars_mapped"],
+                written,
+            ]
+        )
 
-        print(f"[OK ] {os.path.relpath(src)}  ->  strings:{metrics['strings_total']}  "
-              f"changed:{metrics['strings_changed']}  removed:{metrics['chars_removed']}  mapped:{metrics['chars_mapped']}  "
-              f"{'(dry-run)' if args.dry_run else ''}")
+        print(
+            f"[OK ] {os.path.relpath(src)}  ->  strings:{metrics['strings_total']}  "
+            f"changed:{metrics['strings_changed']}  removed:{metrics['chars_removed']}  "
+            f"mapped:{metrics['chars_mapped']}  "
+            f"{'(dry-run)' if args.dry_run else ''}"
+        )
 
     # Escribe reporte
     try:
         if not args.dry_run:
             import csv
+
             with open(args.report, "w", encoding="utf-8", newline="") as rf:
                 w = csv.writer(rf)
                 w.writerow(header)
@@ -370,7 +445,9 @@ def main():
             print("[REPORT] Dry-run: no se escribió CSV (usa --report sin --dry-run).")
     except Exception as e:
         print(f"[WARN] No se pudo escribir el reporte: {e}", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
