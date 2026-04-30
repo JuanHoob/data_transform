@@ -1,0 +1,12 @@
+{
+  "analyzeResult": {
+    "content": "Titulo\nContenido de prueba para el documento.",
+    "paragraphs": [
+      {
+        "content": "Contenido de prueba para el documento.",
+        "role": "body",
+        "boundingRegions": [{"pageNumber": 1}]
+      }
+    ]
+  }
+}
