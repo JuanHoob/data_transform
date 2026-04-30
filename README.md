@@ -9,6 +9,7 @@ _Part of the EcommJuice initiative for intelligent catalog digitization._
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![Neo4j](https://img.shields.io/badge/Neo4j-5.x-green.svg)](https://neo4j.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/JuanHoob/data_transform/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanHoob/data_transform/actions/workflows/ci.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/JuanHoob/data_transform)](https://github.com/JuanHoob/data_transform)
 
 📧 **Contact**: delamorenajuan@gmail.com — for enterprise integration or dataset licensing.  
@@ -190,32 +191,33 @@ cd data_transform
 # Create virtual environment
 python -m venv .venv
 
-# Activate (Windows)
-.venv\Scripts\activate
+# Activate (Windows PowerShell)
+.venv\Scripts\Activate.ps1
 
 # Activate (Linux/Mac)
 source .venv/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install package with all optional runtime and dev dependencies
+pip install -e ".[all,dev]"
+
+# Verify the local checkout
+pytest
+ruff check .
 ```
 
 ### Neo4j Configuration
 
-> **⚠️ Important**: Update Neo4j path and credentials before first run!
+> **⚠️ Important**: Neo4j import requires local configuration. Do not edit credentials in scripts.
 
-Edit `grafos/scripts/run_pipeline_to_neo4j.py`:
+Copy `.env.example` to `.env` and fill the values for your local Neo4j Desktop installation:
 
-```python
-# REQUIRED: Update these values for your environment
-NEO4J_IMPORT_DIR = Path(r"C:\Users\<user>\.Neo4jDesktop2\Data\dbmss\<db-id>\import")
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "your_password"
-
-# Optional customization
-NODE_LABEL = "DataNode"
-RELATIONSHIP_TYPE = "TIENE"
-THRESHOLD = 0.02  # 2% tolerance for consistency validation
+```bash
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=
+CYPHER_SHELL_PATH=
+NEO4J_IMPORT_DIR=
+NEO4J_NODE_LABEL=DataNode
+NEO4J_REL_TYPE=TIENE
 ```
 
 **How to find your Neo4j import directory:**
@@ -224,6 +226,12 @@ THRESHOLD = 0.02  # 2% tolerance for consistency validation
 2. Select your database → Manage → Open Folder
 3. Navigate to `import/` subdirectory
 4. Copy the full path
+
+Generated CSV files and large local data are not versioned. The repository keeps
+small metadata and test fixtures only; prepare `data/` locally before running the
+full pipeline. Historical Neo4j validation reports remain in `grafos/docs/`, but
+they document previous imports and do not mean a fresh clone can import without
+local Neo4j configuration.
 
 ## Quick Start
 
@@ -243,8 +251,8 @@ python scripts\limpiezaD\clean_json_text.py `
 
 ```powershell
 python scripts\tratamiento_datos\json_to_csv.py `
-  --in data\limpios_json `
-  --out exports\csv
+  --input "data\limpios_json\*.json" `
+  --out exports\csv\export_di.csv
 ```
 
 ### 3. Generate Knowledge Graph (Full Pipeline)
@@ -586,25 +594,38 @@ cd data_transform
 # Crear entorno virtual
 python -m venv .venv
 
-# Activar (Windows)
-.venv\Scripts\activate
+# Activar (Windows PowerShell)
+.venv\Scripts\Activate.ps1
 
 # Activar (Linux/Mac)
 source .venv/bin/activate
 
-# Instalar dependencias
-pip install -r requirements.txt
+# Instalar paquete con dependencias opcionales y de desarrollo
+pip install -e ".[all,dev]"
+
+# Verificar el checkout local
+pytest
+ruff check .
 ```
 
 ### Configuración Neo4j
 
-Editar `grafos/scripts/run_pipeline_to_neo4j.py`:
+Neo4j requiere configuración local. No edites credenciales dentro de los scripts:
+copia `.env.example` a `.env` y completa los valores de tu instalación.
 
-```python
-NEO4J_IMPORT_DIR = Path(r"C:\Users\<usuario>\.Neo4jDesktop2\Data\dbmss\<db-id>\import")
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "tu_contraseña"
+```bash
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=
+CYPHER_SHELL_PATH=
+NEO4J_IMPORT_DIR=
+NEO4J_NODE_LABEL=DataNode
+NEO4J_REL_TYPE=TIENE
 ```
+
+Los CSV grandes y datos locales no se versionan. El repositorio conserva
+metadatos pequeños y fixtures de test; prepara `data/` en tu entorno antes de
+ejecutar el pipeline completo. Los informes históricos de `grafos/docs/`
+documentan importaciones previas, no sustituyen la configuración local de Neo4j.
 
 ## Inicio Rápido
 
@@ -624,8 +645,8 @@ python scripts\limpiezaD\clean_json_text.py `
 
 ```powershell
 python scripts\tratamiento_datos\json_to_csv.py `
-  --in data\limpios_json `
-  --out exports\csv
+  --input "data\limpios_json\*.json" `
+  --out exports\csv\export_di.csv
 ```
 
 ### 3. Generar Grafo de Conocimiento (Pipeline Completo)
@@ -886,7 +907,8 @@ Proyecto EcommJuice · 2025
 
 ## 🧾 Validation & Audit Reports
 
-After each import, the pipeline generates a consistency summary comparing expected vs imported entities.
+After each import, the pipeline can generate a consistency summary comparing expected vs imported entities.
+Neo4j must be configured locally via `.env` before this step runs.
 
 These reports can be exported automatically to:
 
@@ -901,6 +923,8 @@ These reports can be exported automatically to:
 ```
 
 For troubleshooting patterns and historical benchmarks, see the [Validation Documentation](grafos/docs/validation.md).
+Those reports are historical evidence from previous imports, not a guarantee that a fresh clone can run
+the full external Neo4j pipeline without local data and credentials.
 
 ---
 
