@@ -1,0 +1,299 @@
+
+
+
+
+
+
+<div class="prinColLeft"><!-- Panel Calendario -->
+<h2 class='tituGeneral'>Kontsulta</h2><div class='busqsimpCal'>            
+<!-- Modif 16/07/2014: incluye r48-calendario.js, para asegurar que existe func resizeIframe() que adapta calendario -->
+<script language="JavaScript" type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>
+<script language="JavaScript" type="text/javascript">
+    document.write("<iframe id='calendarioBOPV' name='calendarioBOPV' frameborder=0 scrolling=no width=100% src='/bopv2/datos/CalAzkena.shtml' onLoad='resizeIframe();'></iframe>");
+</script>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!-- 
+<noscript>	
+     <form name="calendarioBusqueda" id="calendarioBusqueda" action="/p43aBOPVWebWar/IrACalendario.do" method="post">
+     		<input type="hidden" name="idiomaCalendario" id="idiomaCalendario" value="eu">	 
+     <div class="formuBuscarFecha">
+         <div><label>Kontsultatu laburpena:</label></div>
+         <div class="clr"></div>
+	         <div><input type="text" name="fechaBOPV" id="fechaBOPV" class="buscarFecha" value="uuuu/hh/ee"  maxlength="10" size="10"/>     
+	              <input type="submit" name="btnIrACalendario" id="btnIrACalendario" value="Bilaketa" class="btnBuscarFecha"/></div>
+     </div>
+     </form>
+</noscript>
+-->  
+</div>	
+
+<div class="clr"></div>
+<!-- Panel Consulta simple -->
+<h2 class="tituGeneral">Kontsulta erraza</h2>
+<div class="formuSimple">
+
+
+<form name="avanzada" id="formConsultaSimple" action="/p43aBOPVWebWar/realizarBusquedaAvanzada.do?submit=cargar" method="post">
+ 	<input type="hidden" name="tipoBusqueda" value="1" />  
+	<input type="hidden" name="paginaActual" value="1" />
+	<input type="hidden" name="busquedaBRS" value="false" />
+	<input type="hidden" name="seccionSeleccionado" value="-1" />
+	<input type="hidden" name="rangoSeleccionado" value="-1" />
+	<input type="hidden" name="organoEmisorSeleccionado" value="" />
+	<input type="hidden" name="descriptorSeleccionado" value="" />
+	<input type="hidden" name="idioma" value="0" />	
+	<div><input type="text" name="textoDisposicion" id="textoDisposicionID" class="buscarPrinci" title="Kontsulta erraza" />
+<script language="JavaScript" type="text/javascript">
+	function fnContarResultados( ){
+		var urlCount="/p43aBOPVWebWar/realizarBusquedaAvanzada.do";
+		var parametrosurl="idioma=0&R01HNoPortal=true&submit=Contar&textoDisposicion="+$('#textoDisposicionID').val();
+		var respuesta=$.ajax( {
+			async: true,
+			url: urlCount,
+	        crossDomain: true,
+	        type: 'GET',
+   	        data: parametrosurl,
+   	        dataType: 'jsonp', 
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				alert('Error al obtener numero total de registros');
+			},
+			success:function (data, textStatus, jqXHR) {
+				if (data.count!=0 && data.count!='Error') {
+					$('#formConsultaSimple').submit();
+				} else {
+					if (data.count==0) {
+						alert('No se han encontrado resultados');
+					}
+				}
+			}
+		} );
+	}
+   document.write("<a href='javascript:fnContarResultados()'><img src='/appcont/servibopvi/images/buscarPrinci.gif' alt='Buscar' /></a>");
+</script> 
+	</div>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!--  	
+<noscript>	
+		<input type="image" name="buscar" src="/appcont/servibopvi/images/buscarPrinci.gif" /></div>
+</noscript>
+-->  
+</form>
+	
+	<div class="clr"></div>
+</div>
+
+<!-- Panel Servicios -->
+<div class="clr"></div>
+<h2 class="tituServicio">Zerbitzuak</h2>
+<ul class="menuIzqda">
+	<!-- <li><a href="/y22-izapide/eu/x43kToolkitWar/form/fdp?language=eu&procedureId=0101003">Argitaratzeko eskatu</a></li> -->
+	<li><a href="/zerbitzu_eskaera/ehaan-argitaratzeko-eskaera/web01-tramite/eu/#pills_applyProcedure_X882756436804FB272423EA8621BBF774517FB0F">Argitaratzeko eskatu</a></li>
+	
+		<li><a href="/web01-bopv/eu/p43aBOPVWebWar/buscarAvanzada.do?idioma=eu&tipoBusqueda=2">Kontsulta berezia</a></li>
+			
+	<li><a href="/web01-bopv/eu/p43aBOPVWebWar/listarTextosConsol.do?idioma=eu&submit=">Testu kontsolidatuak</a></li>
+ 	<li><a href="/web01-bopv/eu/p43aBOPVWebWar/difuEntradaUsuario.do?idioma=eu&submit=cargar">Gaika jasotzeko zerbitzua</a></li>	
+ 	<li class="lastItm"><a href="/web01-bopv/eu/p43aFirmaAsuntoWar/consultaBoletines.do?idioma=0&amp;method=cargar">Aldizkari elektronikoaren egiaztapena</a></li>
+</ul>
+
+<br />
+<p class="bopvEnlacerss"><a href="/bopv2/datos/Azkena.xml">Azken aldizkaria</a> <a href="/bopv2/datos/Azkena.xml"><img src="/appcont/servibopvi/images/rss.png" alt="" border="0" /> RSS</a>
+</p>
+</div><div class="prinColCenter"><div class="colCentralinterior">
+      <div class="BOPVDisCabecera"><img src="/appcont/servibopvi/images/bopv_anuncio_e.png" alt="Euskal Herriko Agintaritzaren Aldizkaria"/></div>
+      <h2 class="tituGeneral">210. zk., 2024ko urriaren 28a, astelehena</h2><div class="enlaceSumario"><a href="e24_0210.shtml">									
+														Laburpenera joan
+										</a></div><div class="clr"><br/></div>
+      <div>
+        <ul class="listaFormatos">Bestelako formatuak: <li class="formatoPdf"><a href="2404929e.pdf" target="_blank" title="Lehio berrian irekiko da esteka hau">
+												PDF 
+												<span>							
+															(209 KB - 13 orri.)
+														</span></a></li> <li class="formatoePub"><a href="2404929e.epub" target="_blank" title="Lehio berrian irekiko da esteka hau">	
+												EPUB 
+												<span>							
+															(299 KB)</span></a></li> <li class="formatoBilingue"><a href="/web01-bopv/es/p43aBOPVWebWar/VerParalelo.do
+								?ed2024004929">Testu elebiduna</a></li>
+        </ul>
+      </div>
+      <p class="otrosFormatos">
+							Hemen ikusgai dauden gainerako formatuen edukia PDF dokumentu elektroniko ofizial eta jatorrizkoa eraldatuz lortu da
+					</p><script>
+$(document).ready(function(){
+if ($("#bopvNumOrden").length) {
+	var $selectorCapaImprimir = $("#capaBotonImprimir");
+	if ($("#capaBotonImprimir", $("div.bopvBloqueizqda")).length==0) {
+		$selectorCapaImprimir =	$("#capaBotonImprimir");
+	} else {
+		$selectorCapaImprimir = $("#capaBotonImprimir", $("div.bopvBloqueizqda"));
+	}
+	$selectorCapaImprimir.prepend("<div style='float:right;'><span class='bopvanalisisdoc'><a href='#' onclick='javascript:modalWinEus(); return false;' title='Lehio berrian irekiko da esteka hau'>Azterketa dokumentala</a></span></div>");
+}
+});
+</script>
+<!-- Panel Boton Imprimir -->
+<script language="JavaScript" type="text/javascript">	
+	document.write("<div id='capaBotonImprimir' class='bopvImprimir'>");
+	document.write("<a href='#'>");
+	document.write("<img src='/appcont/servibopvi/images/imprimir.png' alt='Inprimatu' border='0' onclick='javascript:self.print();'/>");
+	document.write("</a>");		
+	document.write("</div>");
+</script><h3 class="BOPVDerogada">
+      </h3>
+      <h4 class="BOPVSeccion">BESTELAKO XEDAPENAK</h4>
+      <h4 class="BOPVSubseccion">
+      </h4>
+      <h5 class="BOPVOrganismo">DATUAK BABESTEKO EUSKAL AGINTARITZA<br/></h5>
+      <h5 class="BOPVOrden">4929</h5>
+      <p class="BOPVTitulo">EBAZPENA, 2024ko urriaren 17koa, Datuak Babesteko Euskal Agintaritzaren lehendakariarena, datu pertsonalen babeserako sarien IX. edizioaren deialdia egitekoa.</p>
+      <p class="BOPVDetalle">Orain arte, Datuak Babesteko Euskal Agintaritzak ohorezko aitortza egin die datuen babesaren eta pribatutasunaren inguruko kultura, zabalkundea, ikerketa eta ezagutza sustatzeko eta datuen babesa gizartean hedatzeko egindako lanagatik zenbait pertsona fisiko edo juridikori, publiko nahiz pribaturi, eta zenbait erakunderi. Baina, era berean, uste du euskal administrazio eta instituzio publikoek datu pertsonalen tratamenduak hobetzeko asmoz egin dituzten proiektuek ere aitortza merezi dutela.</p>
+      <p class="BOPVDetalle">VI. edizioaz geroztik, sariak bilakatuz joan dira aintzatespen sinbolikoaren izaera baztertu gabe, diruz babesteko praktika eta metodo berrien diseinua eta horien inplementazioa, datu pertsonalen tratamenduak egokitzen laguntzeko Datuak Babesteko Erregelamendu Orokorra indarrean jarri denez geroztik etorri diren eginbeharretara, eta helburu bera duten materialak sortzea ere sustatu da.</p>
+      <p class="BOPVDetalle">Xede horrekin, eta Datuak Babesteko Euskal Agintaritzaren abenduaren 21eko 16/2023 Legeak esleitu dizkidan eginkizunak egikarituz, honako hau</p>
+      <h6 class="BOPVClave">EBAZTEN DUT:</h6>
+      <p class="BOPVDetalle">Lehenengoa.&#x2013; Datu Pertsonalen Babeserako Sarien IX. edizioaren deialdia egitea.</p>
+      <p class="BOPVDetalle">Bigarrena.&#x2013; Deialdia arautuko duten honako oinarri hauek onartzea:</p>
+      <p class="BOPVDetalle">1. oinarria.&#x2013; Xedea eta helburua.</p>
+      <p class="BOPVDetalle">Datuak Babesteko Euskal Agintaritzak (DBEA) Datu Pertsonalen Babeserako Sarien IX. edizioaren deialdia egiten du konpromisoa aintzatesteko eta datu pertsonalak babesteari eta eskubide digitalei buruzko araudian jasotzen diren xedapenen zabalkundea sustatzeko. Hala sarituko ditu pribatutasuna babesteko arloko lanik garrantzitsuenak eta jarduera-esparru horretan egindako lanagatik bereziki nabarmentzen diren pertsonak fisiko eta juridikoak, entitate publikoak eta pribatuak, eta euskal administrazio eta instituzio publikoak.</p>
+      <p class="BOPVDetalle">DBEAk, sari horiekin, aintzatetsi nahi du hainbat arlotan, hala nola hezkuntzan, enpresan, komunikazioan eta ikerkuntza zientifiko eta teknikoan entitate publikoek eta hedabideek oinarrizko eskubide hori zabaltzeko egindako lana, baita datuen babesaren aplikazio-eremuaren barruko entitateen jardunbide egokiak ere. Eskabideak aurkezteko epea abenduaren 1ean amaituko da.</p>
+      <p class="BOPVDetalle">Edizio honetan lehentasuna izango dute, besteak beste, Datuak Babesteko Erregelamendu Orokorrean (DBEO) ezarrita dagoen erantzukizun proaktiboa aplikatzeari buruzko jarduerek, teknologia disruptiboak erabiltzean agertzen diren arriskuak kudeatzeari buruzkoek, datu-kategoria bereziei buruzkoek, arrisku handikotzat jotako tratamenduek edo gizarteko zati esanguratsu bat edo talde kalteberak, esate baterako adingabeak, desgaitasuna duten pertsonak edo genero-indarkeriako edo jazarpeneko egoeratan dauden pertsonak ukitzen dituzten tratamenduek.</p>
+      <p class="BOPVDetalle">2. oinarria.&#x2013; Sariak.</p>
+      <p class="BOPVDetalle">Sariek honako kategoria hauek dituzte:</p>
+      <p class="BOPVDetalle">1.&#x2013; Saria datuen babesaren arloko ibilbide profesionalari.</p>
+      <p class="BOPVDetalle">2.&#x2013; Saria datuen babesaren arloko ikerkuntza edo ekintzailetzari.</p>
+      <p class="BOPVDetalle">3.&#x2013; Saria datuen babesaren arloko komunikazio, zabalkunde eta sormenari.</p>
+      <p class="BOPVDetalle">4.&#x2013; Saria datuen babesaren arloko proaktibotasunari eta jardunbide egokiei.</p>
+      <p class="BOPVDetalle">Kategoria bakoitzeko sari bakarra emango da. Hala ere, aurkeztutako lanen, baliabideen, diseinuen edo proiektuen kalitatea kontuan hartuta, sariaz gain accesita ere eman ahal izango da kategoriaren arabera.</p>
+      <p class="BOPVDetalle">Sariak eta &#x2013;halakorik egotekotan&#x2013; accesitak honako hauek izango dira: jendaurreko gorazarrea, egiaztagiria eta ohorezko saria.</p>
+      <p class="BOPVDetalle">Gainera, Datuen Babesaren Arloko Ikerkuntza edo Ekintzailetzarako Sariak 3.000 euroko zenbatekoa izango du, eta bakoitzari dagokion accesitak, halakorik baldin badago, 1.000 euro jasoko ditu. Saritutako pertsonek edo entitateek izaera juridiko publikoa badute, dotazio ekonomiko horiek ez dira aplikatuko.</p>
+      <p class="BOPVDetalle">Datuen Babesaren Arloko Komunikazio, Zabalkunde eta Sormenerako Sariak 1.000 euroko dotazio ekonomikoa izango du, eta bi accesitetako bakoitzak, halakorik baldin badago, 1.000 eurokoa. Datuak Babesteko Euskal Agintaritzak beretzat hartuko du saritutako sormen-lanaren erabilera publikoa egiteko eskubidea, nahiz eta egileek jabetza intelektualetik eratorritako eskubideak gorde. Saritutako pertsonek edo entitateek izaera juridiko publikoa badute, dotazio ekonomiko horiek ez dira aplikatuko.</p>
+      <p class="BOPVDetalle">Sariak eman gabe utzi ahal izango dira, epaimahaiaren ustez aurkeztutako lanek, baliabideek, jardunbideek, diseinuek edo proiektuek gutxieneko kalitate-mailarik ez badute, datuen babesaren ikuspuntutik.</p>
+      <p class="BOPVDetalle">Epaimahaikideek, epaimahaikideen lehen mailako senideek eta Datuak Babesteko Euskal Agintaritzako langileek ezin izango dute sarien deialdian parte hartu.</p>
+      <p class="BOPVDetalle">3. oinarria.&#x2013; Saria Datuen Babesaren Arloko Ibilbide Profesionalari.</p>
+      <p class="BOPVDetalle">Sari honen xedea da goraipatzea euren lanbidean datu pertsonalak babesteko oinarrizko eskubidea sustatzen eta babesten nabarmendu diren pertsonek egindako lana.</p>
+      <p class="BOPVDetalle">Datuak Babesteko Euskal Agintaritzako gobernu-organoetako kideek proposatuko dituzte hautagaiak.</p>
+      <p class="BOPVDetalle">Ezin izango dute sari hau jaso aurreko deialdiren batean sari hau bera jaso dutenek.</p>
+      <p class="BOPVDetalle">4. oinarria.&#x2013; Saria Datuen Babesaren Arloko Ikerkuntza edo Ekintzailetzari.</p>
+      <p class="BOPVDetalle">Helburua da saritzea pertsonen pribatutasunerako eskubidea aztertzeko eta eskubide horrek gizartean, ekonomian, esparru juridikoan eta teknologikoan duen eragina ikertzeko jarduera zientifikoa eta ikerkuntza indibiduala nahiz kolektiboa.</p>
+      <p class="BOPVDetalle">Sari honetara aurkeztu ahal izango dira datu pertsonalen babesari buruzko lan zientifikoak edo ikerkuntza-lanak, doktorego tesiak, monografiak eta artikuluak, banakakoak nahiz kolektiboak, argitaratuak ala argitaragabeak, bai eta datu pertsonalak babesteko eskubidea bermatzeko eraginkorrak diren tresna eta soluzio teknologikoak edo kudeaketakoak ere.</p>
+      <p class="BOPVDetalle">Deialdi honetan aurkezteko, lanek ez dute kategoria berean saririk izan behar aurreko deialdietan.</p>
+      <p class="BOPVDetalle">Euskal Autonomia Erkidegoko bi hizkuntza ofizialetan aurkeztu ahal izango dira lanak, baina bereziki baloratuko dira euskaraz argitaratutakoak. Lanaren kopia bat edo erreferentzia aurkeztu beharko da formatu digitalean, eta, beharrezkoa bada, paperean ere bai, I. eranskineko eskabide-ereduarekin batera.</p>
+      <p class="BOPVDetalle">Datuen babesaren arloko ekintzailetzaren xedea da datuen babesari eta pertsonen eskubide eta askatasunei dagokienez jarduera, produktu edo zerbitzu original, sormenezko, berritzaile baten eta eragin soziala duen baten garapena saritzea, aplikazio-eremua Euskal Autonomia Erkidegoa izanik.</p>
+      <p class="BOPVDetalle">5. oinarria.&#x2013; Saria Datuen Babesaren Arloko Komunikazio, Zabalkunde eta Sormenari.</p>
+      <p class="BOPVDetalle">Helburua da saritzea datu pertsonalak babesteko oinarrizko eskubidea sustatzen laguntzen duten herritarren, profesionalen eta gizarte-komunikabideen lanak.</p>
+      <p class="BOPVDetalle">Saria eskuratzeko aukera izango dute Euskal Autonomia Erkidegoko bi hizkuntza ofizialetako edozeinetan gizarte komunikabideek argitaratutako edo hedatutako programek edo atal espezializatuek eta artikuluen edo albisteen segidek, bai eta erreportajeek, monografikoek edo eduki bereziek ere. Horrez gain komunikabide batean zabaldutako bananako lanek &#x2013;editorialek, albisteek, erreportajeek edo irratiko edo telebistako programek&#x2013; edo kazetaritzako proiektuek eta ikus-entzunezko kanpainek ere, baldin eta datuen babesaren sustapenarekin konpromiso editoriala definitzen badute. Hautagaitzak aurkeztu ahal izango dituzte kazetariek (komunikabide batean argitaratu dituzten lanengatik) edo komunikabideak berak, barnean direla komunikabide horietan sartutako blogak, eta norbanakoek ere bai, eta horrez gain kanpaina orokorrak ere aurkeztu ahal izango dira.</p>
+      <p class="BOPVDetalle">Sare sozialen edo plataforma digitalen bitartez datuak babesteko oinarrizko eskubidea zabaltzen laguntzen duten pertsona edo instituzioek ere parte hartu ahal izango dute. Datuak babesteko eskubidea sustatzeko eta zabaltzeko konpromiso irmoa ezaugarri izan duten profilak edo egileak ere aintzatetsiko dira. Lehentasuna izango dute ikuspegi sozialetik datuen babesa herritarren artean eta datuak tratatzen dituztenen artean zabaltzen lagundu dutenek, bai eta datuen babesarekin eta/edo pribatutasunarekin lotutako edukia argitaratu dutenek ere. Mezuen nahiz erabilitako formatuen originaltasuna eta euskararen erabilera baloratuko dira.</p>
+      <p class="BOPVDetalle">Prebentzio-mezuak sortzen dituzten eta datuen babesari buruzko ardurak dituzten pertsonek ere parte hartu ahal izango dute sari honetan, honako modalitate hauetan:</p>
+      <p class="BOPVDetalle">Ikus-entzunezko sorkuntza: animazioak, spotak, bideoartea edo bestelako sorkuntza lanak, gehienez lau minutuko iraupenarekin.</p>
+      <p class="BOPVDetalle">Sorkuntza grafikoa: ilustrazioak, infografiak, kartelak eta marrazkiak, banakoak nahiz serieak.</p>
+      <p class="BOPVDetalle">Sorkuntza literarioa: mikroipuinak, esloganak, claimak, mezu seriatuak edo antzeko edukia edo luzera duten bestelako sorkuntza-lanak.</p>
+      <p class="BOPVDetalle">Deialdi honetan aurkezteko, lanek ez dute kategoria berean saririk izan behar aurreko deialdietan.</p>
+      <p class="BOPVDetalle">Euskal Autonomia Erkidegoko bi hizkuntza ofizialetan aurkeztu ahal izango dira lanak. Lanaren kopia bat edo erreferentzia aurkeztu beharko da formatu digitalean, eta, beharrezkoa bada, paperean ere bai, I. eranskineko eskabide-ereduarekin batera.</p>
+      <p class="BOPVDetalle">6. oinarria.&#x2013; Saria Datuen Babesaren Arloko Proaktibotasunari eta Jardunbide Egokiei.</p>
+      <p class="BOPVDetalle">Entitateei, beren eginkizunak betetzean, pribatutasunaren eta datuen babesaren kudeaketa hobetzeko laguntzen dieten antolaketa edo teknologia arloko edo beste arlo batzuetako proiektuak aintzatestea du xede.</p>
+      <p class="BOPVDetalle">Aintzatesten ditu DBEO eta Datu Pertsonalak Babesteko eta Eskubide Digitalak Bermatzeko Lege Organikoa (DPBEDBLO) betetzeko egindako ekintzak, baldin eta datuak babesteko eskubidearen bermeak sendotzeko lagungarriak badira. Kontuan hartuko dira arrisku handiko datu-tratamenduak barnean hartzeagatik araudia betetzeko zailtasun berezia aztertzen duten proposamenak.</p>
+      <p class="BOPVDetalle">Ohorezko aipamenean datzan sari horretan parte hartu ahal dute Euskal Sektore Publikoa osatzen duten Euskal Administrazio eta Instituzioek eta DBEAren abenduaren 21eko 16/2023 Legearen 2. artikuluan azaltzen direnek, baldin eta datuen babesaren arloko hobekuntza-proiektuak sustatzen badituzte.</p>
+      <p class="BOPVDetalle">Honako dokumentazio hau aurkeztu beharko da:</p>
+      <p class="BOPVDetalle">&#x2013; Proiektua azaltzen duen memoria eta egokitzat jotzen den dokumentazioa eta materiala ere bai.</p>
+      <p class="BOPVDetalle">&#x2013; Proiektua ezarri bada, ezarpenaren gaineko txostena eta gaur egungo egoera.</p>
+      <p class="BOPVDetalle">&#x2013; Ikus-entzunezko aurkezpen bat ere aurkeztu ahal izango da, gehienez ere 10 minutuko iraupenarekin.</p>
+      <p class="BOPVDetalle">Deialdi honetan aurkezteko, proiektuek ez dute kategoria berean saririk izan behar aurreko deialdietan.</p>
+      <p class="BOPVDetalle">Proiektuen gaineko dokumentazioa Euskal Autonomia Erkidegoko bi hizkuntza ofizialetako edozeinetan aurkeztu ahal izango da. Lanaren kopia bat edo erreferentzia aurkeztu beharko da formatu digitalean, eta, beharrezkoa bada, paperean ere bai, III. eranskineko eskabide-ereduarekin batera.</p>
+      <p class="BOPVDetalle">7. oinarria.&#x2013; Parte hartzeko baldintzak.</p>
+      <p class="BOPVDetalle">7.1.&#x2013; Proiekturen bat aurkezten duten pertsona fisiko edo juridikoek, eskabidea aurkezten duten datan, bete egin beharko dituzte honako arau hauetan ezarritako baldintzak: Dirulaguntzei buruzko azaroaren 17ko 38/2003 Lege Orokorraren 13. artikulua eta Euskadiko Ogasun Nagusiaren Antolarauei buruzko Legearen testu bategina onartzen duen azaroaren 11ko 1/1997 Legegintzako Dekretuaren 50. artikulua.</p>
+      <p class="BOPVDetalle">Pertsona edo entitate eskatzaileek erantzukizunpeko adierazpen bat aurkeztu beharko dute esanez ez daudela Dirulaguntzei buruzko Lege Orokorraren 13. artikuluan aurreikusitako ezein debeku-egoeratan. Adierazpena jasota dago deialdi honetan, dagokion eranskinean.</p>
+      <p class="BOPVDetalle">7.2.&#x2013; Sarietan aurkeztutako lanen egile diren pertsona fisikoek eta juridikoek baimena ematen diote Datuak Babesteko Euskal Agintaritzari esateko zein den lanaren egilea deialdiarekin zerikusia duten zabalkunde jardueretan; baina horrek ez du esan nahi sariagatik, saririk jasoz gero, jasotzen duten zenbatekoaz aparteko eskubide ekonomikorik edo bestelako onurarik ematen dionik horrek egileari.</p>
+      <p class="BOPVDetalle">7.3.&#x2013; Eskabidea aurkezteak esan nahi du berariaz eta formalki onartu direla deialdi honen oinarrietan zehaztutako betekizunak eta baldintzak.</p>
+      <p class="BOPVDetalle">8. oinarria.&#x2013; Eskabideak.</p>
+      <p class="BOPVDetalle">Aurkeztutako lanekin batera, I. eranskinean agertzen den eskabide-eredua aurkeztu beharko da.</p>
+      <p class="BOPVDetalle">Eskabideak DBEAren Idazkaritza Nagusiari zuzendu beharko zaizkio, eta hemen aurkeztu ahal izango dira: DBEAren Erregistro Nagusia, Datuak Babesteko Euskal Agintaritzaren Idazkaritza Nagusia (Tomas Zumarraga Dohatsuaren kalea 71, 3. solairua, 01008 Vitoria-Gasteiz); edo urriaren 1eko 39/2015 Legearen, Administrazio Publikoen Administrazio Prozedura Erkidearenaren 16.4 artikuluan aurreikusitako moduren bat erabilita.</p>
+      <p class="BOPVDetalle">Aurkeztutako dokumentazioak ez baditu eskatutako baldintzak betetzen, eskatzaileari hamar egun balioduneko epea emango zaio, jakinarazpena jasotzen duenetik hasita, hutsa zuzentzeko eta nahitaezko agiriak aurkezteko. Era berean, adieraziko zaio aurkeztu ezean, eskaera bertan behera geratuko dela, urriaren 1eko 39/2015 Legearen, Administrazio Publikoen Administrazio Prozedura Erkidearenaren 21. artikuluan xedatutakoaren arabera.</p>
+      <p class="BOPVDetalle">Eskabideak aurkezteko epea 2024ko abenduaren 1eko 00:00etan bukatuko da.</p>
+      <p class="BOPVDetalle">9. oinarria.&#x2013; Epaimahaia.</p>
+      <p class="BOPVDetalle">Honako hauek osatutako epaimahaiak emango ditu sariak:</p>
+      <p class="BOPVDetalle">&#x2013; Epaimahaiburua: Datuak Babesteko Euskal Agintaritzaren lehendakaria.</p>
+      <p class="BOPVDetalle">&#x2013; Epaimahaikideak: Datuak Babesteko Euskal Agintaritzako Kontseilu Aholku-emaileko kideak, Aholkularitza Juridiko eta Ikuskaritza Arloko arduraduna eta Datuak Babesteko Euskal Agintaritzako datuak babesteko ordezkaria.</p>
+      <p class="BOPVDetalle">&#x2013; Idazkaria izango da, hitzarekin baina botorik gabe, Datuak Babesteko Euskal Agintaritzako idazkari nagusia.</p>
+      <p class="BOPVDetalle">Hautagaiak ebaluatzeko, epaimahaiak, deitutako sarien jarduera-esparruetako adituen laguntza jaso ahal izango du.</p>
+      <p class="BOPVDetalle">10. oinarria.&#x2013; Balorazioa.</p>
+      <p class="BOPVDetalle">Datuen Babesaren Arloko Ikerkuntzarako edo Ekintzailetzarako Sarira eta Datuen Babesaren Arloko Komunikazio, Zabalkunde eta Sormenerako Sarira aurkezten diren lanen balorazioa egiteko, epaimahaiak honako irizpide hauek erabiliko ditu:</p>
+      <p class="BOPVDetalle">&#x2013; Fidagarritasuna eta zehaztasun zientifiko, tekniko edo juridikoa.</p>
+      <p class="BOPVDetalle">&#x2013; Landutako gaien originaltasuna.</p>
+      <p class="BOPVDetalle">&#x2013; Lanaren, hurbilketaren edo emaitzen berritasuna.</p>
+      <p class="BOPVDetalle">&#x2013; Ekarpenaren garrantzia datu pertsonalak babesteko esparruaren errealitatearen ezagutzari eta sakontzeari begira.</p>
+      <p class="BOPVDetalle">&#x2013; Zenbateraino txertatzen den generoaren ikuspegia lanaren planteamenduan eta garapenean.</p>
+      <p class="BOPVDetalle">Datuen Babesaren Arloko Proaktibotasunerako eta Jardunbide Egokietarako Saria honako irizpide hauen arabera ebaluatuko du epaimahaiak:</p>
+      <p class="BOPVDetalle">&#x2013; Proiektuaren fidagarritasuna eta kalitate teknikoa.</p>
+      <p class="BOPVDetalle">&#x2013; Zerbitzu publikoak ematean pribatutasunaren kudeaketa hobetzeko egindako ekarpena.</p>
+      <p class="BOPVDetalle">&#x2013; Izaera berritzailea.</p>
+      <p class="BOPVDetalle">&#x2013; Eragin soziala.</p>
+      <p class="BOPVDetalle">&#x2013; Garapen-maila.</p>
+      <p class="BOPVDetalle">&#x2013; Zenbateraino txertatzen den generoaren ikuspegia lanaren planteamenduan eta garapenean.</p>
+      <p class="BOPVDetalle">Epaimahaiak deitu ahal izango die sarietara aurkeztu diren hautagaiei lana, baliabidea edo proiektua zuzenean azaldu dezaten, eta, hartara, epaimahaiak hautagaitza ebaluatzeko behar diren azalpenak eta argibideak eskatu ahal izateko.</p>
+      <p class="BOPVDetalle">11. oinarria.&#x2013; Ebazpena.</p>
+      <p class="BOPVDetalle">Balorazio-prozesua amaitu ondoren, epaimahaiak 2024ko abenduaren 31 baino lehen ebatziko ditu sariak.</p>
+      <p class="BOPVDetalle">Epaimahaiaren erabakia Datuak Babesteko Euskal Agintaritzaren lehendakariaren ebazpen bidez argitaratuko da. Ebazpena Euskal Herriko Agintaritzaren Aldizkarian eta Datuak Babesteko Euskal Agintaritzaren web-orrian argitaratuko da, eta hautagai guztiei jakinaraziko zaie.</p>
+      <p class="BOPVDetalle">Epaimahaiaren erabakia apelaezina izango da, eta ezin izango da errekurtsorik aurkeztu bere aurka.</p>
+      <p class="BOPVDetalle">12. oinarria.&#x2013; Sarien banaketa.</p>
+      <p class="BOPVDetalle">Sariak eta, halakorik badago, accesitak, Datuak Babesteko Europako Egunaren inguruan berariaz antolaturiko ekitaldi batean emango dira, eta behar adinako aurrerapenarekin jakinaraziko da Datuak Babesteko Euskal Agintaritzaren web-orrian (<a href="https://www.avpd.eus" target="_blank">www.avpd.eus</a>), eta saritutako entitate eta pertsonei ere komunikatuko zaie.</p>
+      <p class="BOPVDetalle">13. oinarria.&#x2013; Datuen babesa.</p>
+      <p class="BOPVDetalle">Datuak Babesteko Euskal Agintaritzak tratatuko ditu eskabidean jasotako datu pertsonalak, eta «Prestakuntza-jarduera eta -gertaeretara bertaratuak eta gonbidatuak» izeneko jarduera-tratamenduan jasoko ditu, deialdia kudeatzeko eta ebazteko. Helburuaren oinarri dira deialdiaren interes publikoa eta bertan parte hartzeko eskabidea.</p>
+      <p class="BOPVDetalle">Sarituen datu pertsonalak DBEAren web-orrian argitaratuko dira. Prestazio ekonomikoa duten modalitateetan funtsen transferentziak egiten dituzten finantza-entitateei jakinaraziko zaizkie datu pertsonalak, funtsak izapidetzeko ondorioetarako. Era berean, datuak zerga-arloan eskumena duten administrazioei lagako zaizkie, esate baterako, foru ogasunei eta, hala badagokio, Zerga Administrazioko Estatu Agintaritzari, zerga-arloko araudiak xedatzen duenarekin bat; eta zerga-arloan eskumenak dituzten Euskal Autonomia Erkidegoko administrazio-organoei ere bai.</p>
+      <p class="BOPVDetalle">Datuak gorde egingo dira sariak emateko eta erreklamazioak egiteko prozedura izapidetzen ari den bitartean eta dokumentu-ondarearen eta artxiboen arloko araudia aplikatuko da. Prestazio ekonomikoa duten modalitateetan datuak gordeko dira zerga-arloan aplikatu beharreko legeriak xedatzen duenaren arabera.</p>
+      <p class="BOPVDetalle">Interesdunak, datuak irispidean izateko, zuzentzeko eta ezerezteko, datuen eramangarritasunerako eta datuen tratamendua mugatzeko eta tratamenduaren aurka egiteko eskubideak eta tratamendu automatizatu batean soilik oinarrituta dagoen erabaki baten objektu ez izateko eskubidea egikaritu ditzake Datuak Babesteko Euskal Agintaritzan (Tomas Zumarraga Dohatsuaren kalea 71, 3. solairua, 01008 Vitoria-Gasteiz) edo posta elektronikoko helbide honetan: avpd@avpd.eus</p>
+      <p class="BOPVDetalle">Hirugarrena.&#x2013; Aplikatu beharreko araudia.</p>
+      <p class="BOPVDetalle">Ebazpen honek onartutako oinarrietan aurreikusi gabeko guztirako, honako arau hauek hartuko dira kontuan: azaroaren 11ko 1/1997 Legegintzako Dekretuaren, Euskadiko Ogasun Nagusiaren Antolarauei buruzko Legearen testu bategina onartzen duenaren VI. titulua; azaroaren 17ko 38/2003 Lege Orokorra, Dirulaguntzei buruzkoa, eta lege hori garatzen duen Erregelamendua, uztailaren 21eko 887/2006 Errege Dekretuak onartzen duena; urriaren 1eko 39/2015 Legea, Administrazio Publikoen Administrazio Prozedura Erkidearena, eta urriaren 1eko 40/2015 Legea, Sektore Publikoaren Araubide Juridikoarena; eta horiez gain, aplikatu beharreko indarreko bestelako arauei jarraituko zaie.</p>
+      <p class="BOPVDetalle">Laugarrena.&#x2013; Ebazpen honen aurka aukerako berraztertzeko errekurtsoa aurkeztu ahal izango zaio DBEAren lehendakariari, ebazpena argitaratu eta hurrengo egunetik hasita hilabeteko epean; bestela, administrazioarekiko auzi-errekurtsoa aurkeztu ahal izango da bi hilabeteko epean administrazioarekiko auzien jurisdikzioan, ebazpena argitaratu eta hurrengo egunetik hasita.</p>
+      <p class="BOPVDetalle">Bosgarrena.&#x2013; Ebazpen hau Euskal Herriko Agintaritzaren Aldizkarian eta Datuak Babesteko Euskal Agintaritzaren web-orrian argitaratuko da.</p>
+      <p class="BOPVFirmaLugFec">Vitoria-Gasteiz, 2024ko urriaren 17a.</p>
+      <p class="BOPVFirmaPuesto">Datuak Babesteko Euskal Agintaritzaren lehendakaria,</p>
+      <p class="BOPVFirmaNombre">UNAI ABERASTURI GORRIÑO.</p>
+      <h6 class="BOPVClave">(Ikus .PDF)</h6>
+      <div class="clr"><br/></div><input type="hidden" name="bopvNumOrden" id="bopvNumOrden" value="2024004929"></input><!-- Panel Calificación -->          
+<script language="JavaScript" type="text/javascript">
+function modalWinEus() {
+var nOrden;
+//if (parent.document.getElementById("bopvNumOrden").value == ""){
+if (document.getElementById("bopvNumOrden").value == ""){
+	//Modif 03/04/2018: correccion analisis docum desde busqueda. Intenta sin parent, y con parent.
+	//nOrden=parent.document.URL;
+	//var lastPosition = nOrden.lastIndexOf('/bopv2/datos/');
+	nOrden = document.URL;
+	var lastPosition = nOrden.lastIndexOf('/bopv2/datos/');	
+	if (lastPosition==-1 && parent){
+		nOrden = parent.document.URL;	
+		lastPosition = nOrden.lastIndexOf('/bopv2/datos/');	
+	}
+	if (lastPosition!=-1){
+		lastPosition = lastPosition + '/bopv2/datos/'.length;
+		nOrden=nOrden.substr(lastPosition,4)+'0'+nOrden.substr(lastPosition+10,5);
+	}
+}else {
+	//nOrden = parent.document.getElementById("bopvNumOrden").value;
+	if ($("#bopvNumOrden").length){
+		nOrden=$("#bopvNumOrden").val();
+	} else {
+		nOrden = document.getElementById("bopvNumOrden").value;
+	}
+}
+var w="600";
+var h="300";
+if (typeof screen!='undefined') {
+ w = screen.availWidth/2;
+ h = screen.availHeight/2;
+}
+if (window.showModalDialog) {
+window.showModalDialog("/p43aBOPVWebWar/VerCalificacion.do?nOrden=" + nOrden + "&idioma=eu&R01HNoPortal=true","calificacion",
+"dialogWidth:"+w+"px;dialogHeight:"+h+"px;location:no;resizable=yes");
+} else {
+window.open("/p43aBOPVWebWar/VerCalificacion.do?nOrden=" + nOrden + "&idioma=eu&R01HNoPortal=true","calificacion",
+"height="+h+"px,width="+w+"px,toolbar=no,directories=no,status=no,menubar=no,scrollbars=no,location=no,resizable=yes,modal=yes");
+}
+}
+</script> 
+<span class="bopvanalisisdoc">
+<a href="#" onclick="javascript:modalWinEus(); return false;" title="Lehio berrian irekiko da esteka hau">Azterketa dokumentala</a>
+</span>
+<div class="BOPVDisPie"><br/></div>
+    </div></div><script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>

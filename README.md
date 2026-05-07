@@ -24,6 +24,7 @@ _Part of the EcommJuice initiative for intelligent catalog digitization._
 - [English Documentation](#english-documentation)
   - [Overview](#overview)
   - [Features](#features)
+  - [EusKorpus](#euskorpus)
   - [Architecture](#architecture)
   - [Installation](#installation)
   - [Quick Start](#quick-start)
@@ -31,6 +32,7 @@ _Part of the EcommJuice initiative for intelligent catalog digitization._
 - [Documentación en Español](#documentación-en-español)
   - [Descripción General](#descripción-general)
   - [Características](#características)
+  - [EusKorpus](#euskorpus)
   - [Arquitectura](#arquitectura-1)
   - [Instalación](#instalación)
   - [Inicio Rápido](#inicio-rápido)
@@ -67,6 +69,12 @@ _Part of the EcommJuice initiative for intelligent catalog digitization._
 - 🔍 **Validation**: Automated consistency checks (expected vs actual) with <2% deviation tolerance
 - 📈 **Scalability**: Configurable recursion depth, memory-efficient processing
 - 🛡️ **Reliability**: Error handling, rollback support, detailed logging
+
+## EusKorpus
+
+The EHAA/BOPV scraper is documented in [docs/euskorpus.md](docs/euskorpus.md).
+It currently supports direct document URLs and summary URLs. Year-scale scraping
+is disabled until BOPV index discovery is implemented safely.
 
 ## Architecture
 

@@ -64,6 +64,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+markers = [
+  "live: tests that hit the public BOPV/EHAA site and are skipped unless explicitly enabled",
+]
 
 [tool.ruff]
 line-length = 100

@@ -1,0 +1,317 @@
+
+
+
+
+
+
+<div class="prinColLeft"><!-- Panel Calendario -->
+<h2 class='tituGeneral'>Consulta</h2><div class='busqsimpCal'>            
+<!-- Modif 16/07/2014: incluye r48-calendario.js, para asegurar que existe func resizeIframe() que adapta calendario -->
+<script language="JavaScript" type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>
+<script language="JavaScript" type="text/javascript">
+    document.write("<iframe id='calendarioBOPV' name='calendarioBOPV' frameborder=0 scrolling=no width=100% src='/bopv2/datos/CalUltimo.shtml' onLoad='resizeIframe();'></iframe>");
+</script>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!--
+<noscript>	
+     <form name="calendarioBusqueda" id="calendarioBusqueda" action="/p43aBOPVWebWar/IrACalendario.do" method="post">
+     		<input type="hidden" name="idiomaCalendario" id="idiomaCalendario" value="es"> 	 
+	     <div class="formuBuscarFecha">
+	         <div><label>Consultar el sumario:</label></div>
+	         <div class="clr"></div>
+	         <div><input type="text" name="fechaBOPV" id="fechaBOPV" class="buscarFecha" value="dd/mm/aaaa" maxlength="10" size="10"/>     
+	              <input type="submit" name="btnIrACalendario" id="btnIrACalendario" value="Buscar" class="btnBuscarFecha"/></div>
+	     </div>
+     </form>
+</noscript> 
+-->
+</div>	
+
+<div class="clr"></div>
+<!-- Panel Consulta simple -->
+<h2 class="tituGeneral">Consulta simple</h2>
+<div class="formuSimple">
+
+
+<form name="avanzada" id="formConsultaSimple" action="/p43aBOPVWebWar/realizarBusquedaAvanzada.do?submit=cargar" method="post">
+ 	<input type="hidden" name="tipoBusqueda" value="1" />  
+	<input type="hidden" name="paginaActual" value="1" />
+	<input type="hidden" name="busquedaBRS" value="false" />
+	<input type="hidden" name="seccionSeleccionado" value="-1" />
+	<input type="hidden" name="rangoSeleccionado" value="-1" />
+	<input type="hidden" name="organoEmisorSeleccionado" value="" />
+	<input type="hidden" name="descriptorSeleccionado" value="" />
+	<input type="hidden" name="idioma" value="1" />	
+	<div><input type="text" name="textoDisposicion" id="textoDisposicionID" class="buscarPrinci" title="Consulta simple" />
+<script language="JavaScript" type="text/javascript">
+	function fnContarResultados( ){
+		var urlCount="/p43aBOPVWebWar/realizarBusquedaAvanzada.do";
+		var parametrosurl="idioma=1&R01HNoPortal=true&submit=Contar&textoDisposicion="+$('#textoDisposicionID').val();
+		var respuesta=$.ajax( {
+			async: true,
+			url: urlCount,
+	        crossDomain: true,
+	        type: 'GET',
+   	        data: parametrosurl,
+   	        dataType: 'jsonp', 
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				alert('Error al obtener numero total de registros');
+			},
+			success:function (data, textStatus, jqXHR) {
+				if (data.count!=0 && data.count!='Error') {
+					$('#formConsultaSimple').submit();
+				} else {
+					if (data.count==0) {
+						alert('No se han encontrado resultados');
+					}
+				}
+			}
+		} );
+	}
+   document.write("<a href='javascript:fnContarResultados()'><img src='/appcont/servibopvi/images/buscarPrinci.gif' alt='Buscar' /></a>");
+</script>
+	</div>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!--  
+<noscript>	
+		<input type="image" name="buscar" src="/appcont/servibopvi/images/buscarPrinci.gif" /></div>
+</noscript>
+--> 
+</form>
+	
+	<div class="clr"></div>
+</div>
+ 
+<!-- Panel Servicios -->
+<div class="clr"></div>
+<h2 class="tituServicio">Servicios</h2>
+<ul class="menuIzqda">
+	<!-- <li><a href="/y22-izapide/es/x43kToolkitWar/form/fdp?language=es&procedureId=0101003">Solicitar una publicación</a></li> -->
+	<li><a href="/peticion_servicios/solicitud-publicacion-en-el-bopv/web01-tramite/es/#pills_applyProcedure_X882756436804FB272423EA8621BBF774517FB0F">Solicitar una publicación</a></li>
+	
+		<li><a href="/web01-bopv/es/p43aBOPVWebWar/buscarAvanzada.do?idioma=es&tipoBusqueda=2">Consulta avanzada</a></li>
+	
+	<li><a href="/web01-bopv/es/p43aBOPVWebWar/listarTextosConsol.do?idioma=es&submit=">Textos consolidados</a></li>
+ 	<li><a href="/web01-bopv/es/p43aBOPVWebWar/difuEntradaUsuario.do?idioma=es&submit=cargar">Difusi&oacute;n selectiva</a></li>
+ 	<li class="lastItm"><a href="/web01-bopv/es/p43aFirmaAsuntoWar/consultaBoletines.do?idioma=1&amp;method=cargar">Verificaci&oacute;n Bolet&iacute;n Electr&oacute;nico</a></li>
+</ul>
+
+<br />
+<p class="bopvEnlacerss"><a href="/bopv2/datos/Ultimo.xml">&Uacute;ltimo bolet&iacute;n</a> <a href="/bopv2/datos/Ultimo.xml"><img src="/appcont/servibopvi/images/rss.png" alt="" border="0" /> RSS</a>
+</p>
+</div><div class="prinColCenter"><div class="colCentral">
+      <div class="BOPVSumCabecera">
+        <ul>
+          <li><img src="/appcont/servibopvi/images/BOPV_c.png" alt="BOPV" /></li>
+          <li><img src="/appcont/servibopvi/images/LOGO.png" alt="Logo Gobierno Vasco" /></li>
+          <li><img src="/appcont/servibopvi/images/BOLETIN_c.png" alt="Boletin Oficial del País Vasco" /></li>
+        </ul>
+      </div>
+      <h2 class="tituGeneral">Sumario n.º
+				<span>210</span>, lunes 28 de octubre de  2024</h2>
+      <div class="clr"><br/></div>
+      <div>
+        <ul class="listaFormatos">Otros formatos: <li class="formatoPdf"><a href="s24_0210.pdf" target="_blank" title="Este enlace se abrirá en nueva ventana">
+												PDF 
+												<span>							
+															(226 KB - 4 Pág.)
+														</span></a></li> <li class="formatoePub"><a href="s24_0210.epub" target="_blank" title="Este enlace se abrirá en nueva ventana">
+												EPUB 
+												<span>							
+															(103 KB)</span></a></li> <li class="formatoBilingue"><a href="/web01-bopv/es/p43aBOPVWebWar/VerParalelo.do?cs2024000210">Texto bilingüe</a></li>
+        </ul>
+      </div><script>
+$(document).ready(function(){
+if ($("#bopvNumOrden").length) {
+	var $selectorCapaImprimir = $("#capaBotonImprimir");
+	if ($("#capaBotonImprimir", $("div.bopvBloquedcha")).length==0) {
+		$selectorCapaImprimir =	$("#capaBotonImprimir");
+	} else {
+		$selectorCapaImprimir = $("#capaBotonImprimir", $("div.bopvBloquedcha"));
+	}
+	$selectorCapaImprimir.prepend("<div style='float:right;'><span class='bopvanalisisdoc'><a href='#' onclick='javascript:modalWinCas(); return false;' title='Este enlace se abrirá en nueva ventana'>Análisis documental</a></span></div>");
+}
+});
+</script>
+<!-- Panel Boton Imprimir -->
+<script language="JavaScript" type="text/javascript">	
+	document.write("<div id='capaBotonImprimir' class='bopvImprimir'>");
+	document.write("<a href='#'>");
+	document.write("<img src='/appcont/servibopvi/images/imprimir.png' alt='Imprimir' border='0' onclick='javascript:self.print();'/>");
+	document.write("</a>");		
+	document.write("</div>");
+</script><a name="anclaBOPVSeccion1"></a><h4 class="BOPVSumarioSeccion">AUTORIDADES Y PERSONAL</h4><a name="anclaBOPVSubSeccion1"></a><h5 class="BOPVSumarioSubSeccion">Nombramientos, situaciones e incidencias</h5>
+      <h5 class="BOPVSumarioOrganismo">OSAKIDETZA-SERVICIO VASCO DE SALUD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404925a.shtml">RESOLUCIÓN 1274/2024, de 26 de agosto, de la Directora General de Osakidetza-Servicio vasco de salud, por la que se declara el cese de Dña. Inmaculada Moro Casuso como Subdirectora de División Corporativa-B de Osakidetza-Servicio vasco de salud.</a></p><span class="BOPVSumarioOrden">4925</span></div><a name="anclaBOPVSeccion2"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion2"></a><h5 class="BOPVSumarioSubSeccion">Oposiciones y concursos</h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE SEGURIDAD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404926a.shtml">RESOLUCIÓN de 23 de octubre de 2024, de la Directora de Recursos Humanos, por la que se anuncia la fecha de publicación en el Portal del Empleo Público de la Resolución de 23 de octubre de 2024, por la que se aprueban las relaciones de calificaciones definitivas de los procesos excepcionales de consolidación de empleo del personal laboral de los servicios auxiliares de la Administración de Seguridad de la Comunidad Autónoma de Euskadi, así como de los Acuerdos de los Tribunales Calificadores correspondientes a los puestos convocados en los mencionados procesos.</a></p><span class="BOPVSumarioOrden">4926</span></div><a name="anclaBOPVSeccion3"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion3"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">OSAKIDETZA-SERVICIO VASCO DE SALUD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404927a.shtml">RESOLUCIÓN 1437/2024, de 18 de octubre, de la Directora General de Osakidetza-Servicio vasco de salud, por la que se anuncia convocatoria pública para la provisión, por el sistema de libre designación, del puesto de trabajo de Subdirector/a de Enfermería, en la Dirección de Asistencia Sanitaria de Osakidetza-Servicio vasco de salud.</a></p><span class="BOPVSumarioOrden">4927</span></div><a name="anclaBOPVSeccion4"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion4"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">AYUNTAMIENTO DE EIBAR </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404928a.shtml">ANUNCIO relativo a la convocatoria para la provisión transitoria por comisión de servicios, del puesto de trabajo de Oficial/a de la Policía Local.</a></p><span class="BOPVSumarioOrden">4928</span></div><a name="anclaBOPVSeccion5"></a><h4 class="BOPVSumarioSeccion">OTRAS DISPOSICIONES</h4><a name="anclaBOPVSubSeccion5"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">AUTORIDAD VASCA DE PROTECCIÓN DE DATOS </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404929a.shtml">RESOLUCIÓN de 17 de octubre de 2024, del Presidente de la Autoridad Vasca de Protección de Datos, por la que se convoca la IX Edición de los Premios a la Protección de Datos de Carácter Personal.</a></p><span class="BOPVSumarioOrden">4929</span></div><a name="anclaBOPVSeccion6"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion6"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE GOBERNANZA, ADMINISTRACIÓN DIGITAL Y AUTOGOBIERNO </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404930a.shtml">ORDEN de 14 de octubre de 2024, de la Consejera de Gobernanza, Administración Digital y Autogobierno, por la que se inscribe en el Registro de Fundaciones del País Vasco la modificación de estatutos de la fundación denominada Fundación Cursos de Verano de la UPV/EHU.</a></p><span class="BOPVSumarioOrden">4930</span></div><a name="anclaBOPVSeccion7"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion7"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE INDUSTRIA, TRANSICIÓN ENERGÉTICA Y SOSTENIBILIDAD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404931a.shtml">RESOLUCIÓN de 14 de octubre de 2024, de la Delegada Territorial de Administración Industrial de Bizkaia, por la que se convoca el acto de levantamiento de Actas Previas a la ocupación de las fincas que se relacionan, afectadas por el proyecto de ampliación de faja libre de arbolado de la LAMT a 13,2 kV S.C. denominada «Liboa-Asua cto. 9», en su tramo entre la STR Liboa (4543) y el apoyo n.º 9048, en los términos municipales de Leioa y Erandio (Bizkaia), titularidad de i-DE Redes Eléctricas Inteligentes, S.A.U.</a></p><span class="BOPVSumarioOrden">4931</span></div><a name="anclaBOPVSeccion8"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion8"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE EDUCACIÓN </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404932a.shtml">ORDEN de 15 de octubre de 2024, de la Consejera de Educación, por la que se convocan plazas subvencionadas para la realización de cursos de inglés, francés y alemán, en el extranjero, para alumnos y alumnas de 3.º y 4.º cursos de Educación Secundaria Obligatoria y de 1.º y 2.º cursos de Bachillerato, matriculados en centros sostenidos con fondos públicos de la Comunidad Autónoma del País Vasco.</a></p><span class="BOPVSumarioOrden">4932</span></div><a name="anclaBOPVSeccion9"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion9"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE SALUD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404933a.shtml">CORRECCIÓN DE ERRORES de la Orden de 24 de septiembre de 2024, del Consejero de Salud, por la que se convocan ayudas a proyectos de desarrollo, validación y demostración de la iniciativa Medtech de la Fundación Vasca de Innovación e Investigación Sanitarias, BIOEF.</a></p><span class="BOPVSumarioOrden">4933</span></div><a name="anclaBOPVSeccion10"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion10"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404934a.shtml">ORDEN de 22 de octubre de 2024, del Consejero de Salud, por la que se convocan ayudas económicas para apoyar el desarrollo de los planes locales de adicciones en el ámbito comunitario, en el ejercicio 2024.</a></p><span class="BOPVSumarioOrden">4934</span></div><a name="anclaBOPVSeccion11"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion11"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE MOVILIDAD SOSTENIBLE </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404935a.shtml">RESOLUCIÓN de 11 de octubre de 2024, de la Directora de Infraestructuras del Transporte, por la que se desafecta y excluye de la relación de bienes y derechos afectados por el «Proyecto constructivo Metro de Donostialdea. Tramo Altza-Galtzaraborda», a las fincas 005, 006, 007 y 028 y se da por finalizado el expediente expropiatorio con los titulares de las mismas.</a></p><span class="BOPVSumarioOrden">4935</span></div><a name="anclaBOPVSeccion12"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion12"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404936a.shtml">RESOLUCIÓN de 15 de octubre de 2024, de la Directora de Infraestructuras del Transporte, por la que se aprueba la relación de bienes y derechos afectados por el «Proyecto constructivo de la supresión del paso a nivel de la estación de Bedia y nuevo aparcamiento» y se convoca a sus titulares al levantamiento de Actas Previas a la Ocupación.</a></p><span class="BOPVSumarioOrden">4936</span></div><a name="anclaBOPVSeccion13"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion13"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE ALIMENTACIÓN, DESARROLLO RURAL, AGRICULTURA Y PESCA </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404937a.shtml">RESOLUCIÓN de 10 octubre de 2024, del Director de Agricultura y Ganadería, por la que se aprueba el expediente de constitucion e inscripcion de la sociedad agraria de transformacion «Goros Compañía de Vinos».</a></p><span class="BOPVSumarioOrden">4937</span></div><a name="anclaBOPVSeccion14"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion14"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">SPRI-AGENCIA VASCA DE DESARROLLO EMPRESARIAL </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404938a.shtml">RESOLUCIÓN de 22 de octubre de 2024, del Director General de SPRI-Agencia Vasca de Desarrollo Empresarial, por la que se procede a la modificación de las bases reguladoras del Programa de Ayudas «Renove Smart Industry» 2024.</a></p><span class="BOPVSumarioOrden">4938</span></div><a name="anclaBOPVSeccion15"></a><h4 class="BOPVSumarioSeccion">ANUNCIOS</h4><a name="anclaBOPVSubSeccion15"></a><h5 class="BOPVSumarioSubSeccion">Otros anuncios oficiales</h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE ECONOMÍA, TRABAJO Y EMPLEO </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404939a.shtml">ANUNCIO de 14 de octubre de 2024, del Director General de Lanbide-Servicio Vasco de Empleo, por el que se notifica un requerimiento de pago.</a></p><span class="BOPVSumarioOrden">4939</span></div><a name="anclaBOPVSeccion16"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion16"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404940a.shtml">ANUNCIO de 16 de octubre de 2024, de la Delegada Territorial de Trabajo y Seguridad Social de Bizkaia, por el que se notifica resolución en procedimiento sancionador en el orden social.</a></p><span class="BOPVSumarioOrden">4940</span></div><a name="anclaBOPVSeccion17"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion17"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404941a.shtml">ANUNCIO de 21 de octubre de 2024, del Director General de Lanbide-Servicio Vasco de Empleo, relativo a notificaciones n.º 2901 sobre procedimientos de tramitación de la prestación del Ingreso Mínimo Vital.</a></p><span class="BOPVSumarioOrden">4941</span></div><a name="anclaBOPVSeccion18"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion18"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404942a.shtml">ANUNCIO de 21 de octubre de 2024, del Director General de Lanbide-Servicio Vasco de Empleo, relativo a notificaciones n.º 2901 sobre procedimientos de tramitación de la prestación del Ingreso Mínimo Vital.</a></p><span class="BOPVSumarioOrden">4942</span></div><a name="anclaBOPVSeccion19"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion19"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE INDUSTRIA, TRANSICIÓN ENERGÉTICA Y SOSTENIBILIDAD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404943a.shtml">ANUNCIO por el que se notifica la Resolución de 22 de agosto de 2024, del Delegado Territorial de Administración Industrial de Álava, por la que se resuelve el procedimiento sancionador 01 SEA 2024-53.</a></p><span class="BOPVSumarioOrden">4943</span></div><a name="anclaBOPVSeccion20"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion20"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE SEGURIDAD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404944a.shtml">ANUNCIO por el que se emplaza a las personas interesadas en el procedimiento abreviado 264/2024, seguido ante el Juzgado de lo Contencioso-Administrativo n.º 1 de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4944</span></div><a name="anclaBOPVSeccion21"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion21"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404945a.shtml">ANUNCIO por el que se emplaza a las personas interesadas en el procedimiento abreviado 352/2024, seguido ante el Juzgado de lo Contencioso-Administrativo n.º 4 de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4945</span></div><a name="anclaBOPVSeccion22"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion22"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404946a.shtml">ANUNCIO por el que se emplaza a las personas interesadas en el procedimiento abreviado 320/2024, seguido ante el Juzgado de lo Contencioso-Administrativo n.º 3 de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4946</span></div><a name="anclaBOPVSeccion23"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion23"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404947a.shtml">ANUNCIO por el que se emplaza a las personas interesadas en el procedimiento abreviado 348/2024, seguido ante el Juzgado de lo Contencioso-Administrativo n.º 4 de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4947</span></div><a name="anclaBOPVSeccion24"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion24"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404948a.shtml">ANUNCIO por el que se emplaza a las personas interesadas en el procedimiento abreviado 281/2024, seguido ante el Juzgado de lo Contencioso-Administrativo n.º 4 de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4948</span></div><a name="anclaBOPVSeccion25"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion25"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404949a.shtml">ANUNCIO por el que se notifican resoluciones dictadas por la Directora de la Ertzaintza, con relación a infracciones de la Ley Orgánica 4/2015, de 30 de marzo, de protección de la seguridad ciudadana (LOPSC).</a></p><span class="BOPVSumarioOrden">4949</span></div><a name="anclaBOPVSeccion26"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion26"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo"> </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404950a.shtml">ANUNCIO por el que se notifica la Resolución del Director de Juego y Espectáculos, recaída en varios expedientes sancionadores, en relación con la Ley 19/2007, de 11 de julio, contra la Violencia, el Racismo, la Xenofobia y la Intolerancia en el Deporte.</a></p><span class="BOPVSumarioOrden">4950</span></div><a name="anclaBOPVSeccion27"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion27"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE SALUD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404951a.shtml">ANUNCIO del Delegado Territorial de Salud de Bizkaia, por el que se notifica la incoación del procedimiento sancionador n.º B-43/2024-AD por el Director de Salud Pública y Adicciones.</a></p><span class="BOPVSumarioOrden">4951</span></div><a name="anclaBOPVSeccion28"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion28"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">DEPARTAMENTO DE BIENESTAR, JUVENTUD Y RETO DEMOGRÁFICO </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404952a.shtml">ANUNCIO de 14 de octubre de 2024, de la Viceconsejera de Políticas Sociales, por el que se notifican requerimientos de documentación relativos a las subvenciones contempladas en el Decreto 27/2023, de 21 de febrero, de ayudas a las familias con hijas o hijos.</a></p><span class="BOPVSumarioOrden">4952</span></div><a name="anclaBOPVSeccion29"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion29"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">OSAKIDETZA-SERVICIO VASCO DE SALUD </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404953a.shtml">ANUNCIO por el que se emplaza a posibles interesados en el recurso contencioso-administrativo (procedimiento abreviado) n.º 321/2024.</a></p><span class="BOPVSumarioOrden">4953</span></div><a name="anclaBOPVSeccion30"></a><h4 class="BOPVSumarioSeccion">
+      </h4><a name="anclaBOPVSubSeccion30"></a><h5 class="BOPVSumarioSubSeccion">
+      </h5>
+      <h5 class="BOPVSumarioOrganismo">AYUNTAMIENTO DE VITORIA-GASTEIZ </h5>
+      <div class="txtBloque">
+        <p class="BOPVSumarioTitulo"><a href="2404954a.shtml">ANUNCIO relativo a la aprobación inicial del Plan de Acción para la Mejora del Ambiente Sonoro (PAMAS 2024) de Vitoria-Gasteiz.</a></p><span class="BOPVSumarioOrden">4954</span></div>
+      <div class="clr"><br/></div>
+      <div class="BOPVSumPie"><br/></div>
+    </div>
+    <div class="colIzquierda">
+      <h2 class="tituGeneral">Sumario</h2>
+      <ul class="princiSumario">
+        <li><a href="#anclaBOPVSeccion1">AUTORIDADES Y PERSONAL</a><ul class="BOPVSumarioSubSeccion">
+            <li><a href="#anclaBOPVSubSeccion1">Nombramientos, situaciones e incidencias</a></li>
+          </ul>
+        </li>
+        <li class="BOPVListadoSubseccion"><a href="#anclaBOPVSubSeccion2">Oposiciones y concursos</a></li>
+        <li><a href="#anclaBOPVSeccion5">OTRAS DISPOSICIONES</a></li>
+        <li><a href="#anclaBOPVSeccion15">ANUNCIOS</a><ul class="BOPVSumarioSubSeccion">
+            <li><a href="#anclaBOPVSubSeccion15">Otros anuncios oficiales</a></li>
+          </ul>
+        </li>
+      </ul><!-- Panel Informacion general -->
+<h2 class="tituGeneral">Informaci&oacute;n general</h2>
+<ul class="menuDcha">
+	<li><a href="/web01-bopv/es/bopv2/datos/html/info1_c.shtml">Caracter&iacute;sticas</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/info2a_c.shtml">C&oacute;mo utilizar el servicio de consulta</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/infodsi_c.shtml">C&oacute;mo utilizar el servicio de difusi&oacute;n selectiva</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/info2b_c.shtml">C&oacute;mo utilizar el servicio de verificaci&oacute;n de boletín electr&oacute;nico</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/info3_c.shtml">Cómo realizar una solicitud de publicación</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/info4_c.shtml">Textos consolidados</a></li>
+	<li><a href="https://www.euskadi.eus/supresion-de-datos-personales-del-boletin-oficial-del-pais-vasco-bopv-derecho-al-olvido/web01-a2datuba/es/">Datos personales. Derecho al olvido</a></li>
+	<li><a href="/web01-bopv/es/bopv2/datos/html/faq_c.shtml">Preguntas frecuentes</a></li>	
+</ul></div></div><script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>

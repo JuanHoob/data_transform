@@ -1,0 +1,299 @@
+
+
+
+
+
+
+<div class="prinColLeft"><!-- Panel Calendario -->
+<h2 class='tituGeneral'>Consulta</h2><div class='busqsimpCal'>            
+<!-- Modif 16/07/2014: incluye r48-calendario.js, para asegurar que existe func resizeIframe() que adapta calendario -->
+<script language="JavaScript" type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>
+<script language="JavaScript" type="text/javascript">
+    document.write("<iframe id='calendarioBOPV' name='calendarioBOPV' frameborder=0 scrolling=no width=100% src='/bopv2/datos/CalUltimo.shtml' onLoad='resizeIframe();'></iframe>");
+</script>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!--
+<noscript>	
+     <form name="calendarioBusqueda" id="calendarioBusqueda" action="/p43aBOPVWebWar/IrACalendario.do" method="post">
+     		<input type="hidden" name="idiomaCalendario" id="idiomaCalendario" value="es"> 	 
+	     <div class="formuBuscarFecha">
+	         <div><label>Consultar el sumario:</label></div>
+	         <div class="clr"></div>
+	         <div><input type="text" name="fechaBOPV" id="fechaBOPV" class="buscarFecha" value="dd/mm/aaaa" maxlength="10" size="10"/>     
+	              <input type="submit" name="btnIrACalendario" id="btnIrACalendario" value="Buscar" class="btnBuscarFecha"/></div>
+	     </div>
+     </form>
+</noscript> 
+-->
+</div>	
+
+<div class="clr"></div>
+<!-- Panel Consulta simple -->
+<h2 class="tituGeneral">Consulta simple</h2>
+<div class="formuSimple">
+
+
+<form name="avanzada" id="formConsultaSimple" action="/p43aBOPVWebWar/realizarBusquedaAvanzada.do?submit=cargar" method="post">
+ 	<input type="hidden" name="tipoBusqueda" value="1" />  
+	<input type="hidden" name="paginaActual" value="1" />
+	<input type="hidden" name="busquedaBRS" value="false" />
+	<input type="hidden" name="seccionSeleccionado" value="-1" />
+	<input type="hidden" name="rangoSeleccionado" value="-1" />
+	<input type="hidden" name="organoEmisorSeleccionado" value="" />
+	<input type="hidden" name="descriptorSeleccionado" value="" />
+	<input type="hidden" name="idioma" value="1" />	
+	<div><input type="text" name="textoDisposicion" id="textoDisposicionID" class="buscarPrinci" title="Consulta simple" />
+<script language="JavaScript" type="text/javascript">
+	function fnContarResultados( ){
+		var urlCount="/p43aBOPVWebWar/realizarBusquedaAvanzada.do";
+		var parametrosurl="idioma=1&R01HNoPortal=true&submit=Contar&textoDisposicion="+$('#textoDisposicionID').val();
+		var respuesta=$.ajax( {
+			async: true,
+			url: urlCount,
+	        crossDomain: true,
+	        type: 'GET',
+   	        data: parametrosurl,
+   	        dataType: 'jsonp', 
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				alert('Error al obtener numero total de registros');
+			},
+			success:function (data, textStatus, jqXHR) {
+				if (data.count!=0 && data.count!='Error') {
+					$('#formConsultaSimple').submit();
+				} else {
+					if (data.count==0) {
+						alert('No se han encontrado resultados');
+					}
+				}
+			}
+		} );
+	}
+   document.write("<a href='javascript:fnContarResultados()'><img src='/appcont/servibopvi/images/buscarPrinci.gif' alt='Buscar' /></a>");
+</script>
+	</div>
+<!--Modif 20/03/2017: no se debe usar noscript por accesibilidad-->
+<!--  
+<noscript>	
+		<input type="image" name="buscar" src="/appcont/servibopvi/images/buscarPrinci.gif" /></div>
+</noscript>
+--> 
+</form>
+	
+	<div class="clr"></div>
+</div>
+ 
+<!-- Panel Servicios -->
+<div class="clr"></div>
+<h2 class="tituServicio">Servicios</h2>
+<ul class="menuIzqda">
+	<!-- <li><a href="/y22-izapide/es/x43kToolkitWar/form/fdp?language=es&procedureId=0101003">Solicitar una publicación</a></li> -->
+	<li><a href="/peticion_servicios/solicitud-publicacion-en-el-bopv/web01-tramite/es/#pills_applyProcedure_X882756436804FB272423EA8621BBF774517FB0F">Solicitar una publicación</a></li>
+	
+		<li><a href="/web01-bopv/es/p43aBOPVWebWar/buscarAvanzada.do?idioma=es&tipoBusqueda=2">Consulta avanzada</a></li>
+	
+	<li><a href="/web01-bopv/es/p43aBOPVWebWar/listarTextosConsol.do?idioma=es&submit=">Textos consolidados</a></li>
+ 	<li><a href="/web01-bopv/es/p43aBOPVWebWar/difuEntradaUsuario.do?idioma=es&submit=cargar">Difusi&oacute;n selectiva</a></li>
+ 	<li class="lastItm"><a href="/web01-bopv/es/p43aFirmaAsuntoWar/consultaBoletines.do?idioma=1&amp;method=cargar">Verificaci&oacute;n Bolet&iacute;n Electr&oacute;nico</a></li>
+</ul>
+
+<br />
+<p class="bopvEnlacerss"><a href="/bopv2/datos/Ultimo.xml">&Uacute;ltimo bolet&iacute;n</a> <a href="/bopv2/datos/Ultimo.xml"><img src="/appcont/servibopvi/images/rss.png" alt="" border="0" /> RSS</a>
+</p>
+</div><div class="prinColCenter"><div class="colCentralinterior">
+      <div class="BOPVDisCabecera"><img src="/appcont/servibopvi/images/bopv_anuncio_c.png" alt="Boletin Oficial del País Vasco"/></div>
+      <h2 class="tituGeneral">N.º <span>210</span>, lunes 28 de octubre de  2024</h2><div class="enlaceSumario"><a href="s24_0210.shtml">									
+														Ir al sumario
+										</a></div><div class="clr"><br/></div>
+      <div>
+        <ul class="listaFormatos">Otros formatos: <li class="formatoPdf"><a href="2404929a.pdf" target="_blank" title="Este enlace se abrirá en nueva ventana">
+													PDF 
+													<span>							
+																(230 KB - 13 Pág.)
+															</span></a></li> <li class="formatoePub"><a href="2404929a.epub" target="_blank" title="Este enlace se abrirá en nueva ventana">
+													EPUB 
+													<span>							
+																(339 KB)</span></a></li> <li class="formatoBilingue"><a href="/web01-bopv/es/p43aBOPVWebWar/VerParalelo.do
+									?cd2024004929">Texto bilingüe</a></li>
+        </ul>
+      </div>
+      <p class="otrosFormatos">
+							El contenido de los otros formatos que aquí se muestran, se ha obtenido mediante una transformación del documento electrónico PDF oficial y auténtico
+					</p><script>
+$(document).ready(function(){
+if ($("#bopvNumOrden").length) {
+	var $selectorCapaImprimir = $("#capaBotonImprimir");
+	if ($("#capaBotonImprimir", $("div.bopvBloquedcha")).length==0) {
+		$selectorCapaImprimir =	$("#capaBotonImprimir");
+	} else {
+		$selectorCapaImprimir = $("#capaBotonImprimir", $("div.bopvBloquedcha"));
+	}
+	$selectorCapaImprimir.prepend("<div style='float:right;'><span class='bopvanalisisdoc'><a href='#' onclick='javascript:modalWinCas(); return false;' title='Este enlace se abrirá en nueva ventana'>Análisis documental</a></span></div>");
+}
+});
+</script>
+<!-- Panel Boton Imprimir -->
+<script language="JavaScript" type="text/javascript">	
+	document.write("<div id='capaBotonImprimir' class='bopvImprimir'>");
+	document.write("<a href='#'>");
+	document.write("<img src='/appcont/servibopvi/images/imprimir.png' alt='Imprimir' border='0' onclick='javascript:self.print();'/>");
+	document.write("</a>");		
+	document.write("</div>");
+</script><h3 class="BOPVDerogada">
+      </h3>
+      <h4 class="BOPVSeccion">OTRAS DISPOSICIONES</h4>
+      <h4 class="BOPVSubseccion">
+      </h4>
+      <h5 class="BOPVOrganismo">AUTORIDAD VASCA DE PROTECCIÓN DE DATOS<br/></h5>
+      <h5 class="BOPVOrden">4929</h5>
+      <p class="BOPVTitulo">RESOLUCIÓN de 17 de octubre de 2024, del Presidente de la Autoridad Vasca de Protección de Datos, por la que se convoca la IX Edición de los Premios a la Protección de Datos de Carácter Personal.</p>
+      <p class="BOPVDetalle">La Autoridad Vasca de Protección de Datos ha venido reconociendo de manera honorífica a las personas físicas o jurídicas, públicas y privadas e Instituciones que han destacado significativamente en su labor de promoción del conocimiento, la investigación, la divulgación de la cultura de la protección de datos y la privacidad y la difusión de la misma en la sociedad, y ha considerado igualmente merecedores de reconocimiento aquellos proyectos que implicasen una mejora de los tratamientos de datos de carácter personal realizados por las Administraciones e Instituciones Públicas Vascas.</p>
+      <p class="BOPVDetalle">A partir de su VI edición, los premios evolucionaron para, sin perder su característica de reconocimiento simbólico, incentivar económicamente tanto el diseño como la puesta en ejecución de métodos y prácticas que faciliten el mejor acomodo de los tratamientos de datos personales con las obligaciones derivadas de la plena aplicación del Reglamento General de Protección de Datos, promoviendo además la creación de materiales que contribuyan a la obtención de tales objetivos.</p>
+      <p class="BOPVDetalle">A tal fin, y en el ejercicio de las funciones que me atribuye la Ley 16/2023, de 21 de diciembre, de la Autoridad Vasca de Protección de Datos,</p>
+      <h6 class="BOPVClave">RESUELVO:</h6>
+      <p class="BOPVDetalle">Primero.&#x2013; Convocar la IX Edición de los Premios a la Protección de Datos de Carácter Personal.</p>
+      <p class="BOPVDetalle">Segundo.&#x2013; Aprobar como bases que regirán la convocatoria las siguientes:</p>
+      <p class="BOPVDetalle">Base 1.&#x2013; Objeto y finalidad.</p>
+      <p class="BOPVDetalle">La Autoridad Vasca de Protección de Datos (AVPD) convoca la IX Edición de los Premios a la Protección de Datos Personales para reconocer el compromiso y promover la difusión en relación con las disposiciones contenidas en la normativa de protección de datos personales y sobre derechos digitales premiando así los trabajos más relevantes en materia de protección de la privacidad, tanto a las personas físicas y jurídicas como a las Administraciones e Instituciones Públicas Vascas y a las entidades públicas y privadas que se distingan significativamente por su actuación en este ámbito de actividad.</p>
+      <p class="BOPVDetalle">La AVPD quiere reconocer con estos premios el trabajo realizado para difundir este derecho fundamental en ámbitos como el educativo, el empresarial, comunicativo, la investigación científico-técnica, realizado por entidades públicas, los medios de comunicación, así como las buenas prácticas de entidades de su ámbito de aplicación. El plazo para la presentación de candidaturas finaliza el 1 de diciembre.</p>
+      <p class="BOPVDetalle">En esta edición se priorizarán, entre otras, aquellas actividades relativas a la aplicación de la responsabilidad proactiva establecida en el Reglamento General de Protección de Datos (RGPD) y la gestión de los riesgos cuando se utilizan tecnologías disruptivas, que traten sobre categorías especiales de datos, tratamientos considerados de alto riesgo o que afecten a una parte significativa de la sociedad o a grupos vulnerables como menores, personas con discapacidad o personas en situaciones de violencia de género o acoso.</p>
+      <p class="BOPVDetalle">Base 2.&#x2013; Premios.</p>
+      <p class="BOPVDetalle">Se convocan premios en las siguientes categorías:</p>
+      <p class="BOPVDetalle">1.&#x2013; Premio a la Trayectoria Profesional en Protección de Datos.</p>
+      <p class="BOPVDetalle">2.&#x2013; Premio Investigación o emprendimiento en Protección de Datos.</p>
+      <p class="BOPVDetalle">3.&#x2013; Premio Comunicación, difusión y creatividad en Protección de Datos.</p>
+      <p class="BOPVDetalle">4.&#x2013; Premio a la proactividad y buenas prácticas en Protección de Datos.</p>
+      <p class="BOPVDetalle">Se otorgará un único premio por categoría. No obstante, en función de la calidad de los trabajos, recursos, diseños o proyectos presentados se podrá conceder, además, accésits por categoría.</p>
+      <p class="BOPVDetalle">Los Premios, así como, en su caso, los accésits, consistirán en una distinción honorífica, certificado acreditativo y en el reconocimiento público.</p>
+      <p class="BOPVDetalle">El Premio Investigación o Emprendimiento en Protección de Datos estará además dotado con 3.000 euros y su correspondiente accésit, si lo hubiere, tendrá una dotación de 1.000 euros. Estas dotaciones económicas no se aplicarán aplicación en el supuesto de que las personas o entidades premiadas tuvieran naturaleza jurídico-pública.</p>
+      <p class="BOPVDetalle">El Premio Comunicación, difusión y creatividad en Protección de Datos contará con una dotación económica de 2.500 euros, y hasta dos accésits, si los hubiere, con una dotación cada uno de 1.000 euros, reservándose la Autoridad Vasca de Protección de datos el derecho de uso público de la creación premiada, sin perjuicio de que las personas autoras conserven todos los derechos derivados de su propiedad intelectual. Estas dotaciones económicas no se aplicarán en el supuesto de que las personas o entidades premiadas tuvieran naturaleza jurídico-pública.</p>
+      <p class="BOPVDetalle">Los premios podrán ser declarados desiertos si ninguno de los trabajos, recursos, prácticas, diseños o proyectos presentados tiene a juicio del Jurado, desde el punto de vista de la protección de datos, un nivel de calidad suficiente.</p>
+      <p class="BOPVDetalle">No podrán participar en estos premios ningún miembro del jurado, ni sus familiares de primer grado, ni el personal de la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVDetalle">Base 3.&#x2013; Premio a la Trayectoria Profesional en Protección de Datos.</p>
+      <p class="BOPVDetalle">Este premio reconoce la labor de aquellas personas que desde su actividad profesional vienen destacando en la defensa y promoción del derecho fundamental a la protección de datos de carácter personal.</p>
+      <p class="BOPVDetalle">Las personas candidatas al premio serán propuestas por cualquiera de las y los miembros de los órganos de gobierno de la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVDetalle">No podrán ser candidatas a este premio las personas galardonadas en esta categoría en convocatorias anteriores.</p>
+      <p class="BOPVDetalle">Base 4.&#x2013; Premio Investigación o Emprendimiento en Protección de Datos.</p>
+      <p class="BOPVDetalle">Su objeto es premiar la actividad científica y de investigación, individual o colectiva, que profundice en el derecho fundamental de las personas a la privacidad, y en su incidencia en la realidad social, económica, jurídica o tecnológica.</p>
+      <p class="BOPVDetalle">Podrán presentarse a este premio trabajos científicos o de investigación, tesis doctorales, monografías y artículos, individuales o colectivos, publicados o inéditos, que versen sobre protección de datos personales, así como el diseño ejecutable de herramientas y soluciones tecnológicas o de gestión que contribuyan a la más eficaz garantía del derecho a la protección de datos personales.</p>
+      <p class="BOPVDetalle">Los trabajos que se presenten a esta convocatoria no podrán haber sido premiados con anterioridad en esta misma categoría.</p>
+      <p class="BOPVDetalle">Los trabajos podrán presentarse en cualquiera de las dos lenguas oficiales de la Comunidad Autónoma Vasca, si bien se valorarán especialmente aquellos publicados en euskera. Se deberá aportar copia o referencia del trabajo en formato digital y, si resulta relevante, en formato papel, acompañado del modelo de solicitud que figura en el Anexo I.</p>
+      <p class="BOPVDetalle">En lo que se refiere al emprendimiento en materia de protección de datos, este tiene por objeto premiar el desarrollo de una actividad, producto o servicio original, creativo, innovador y con impacto social en relación con la protección de datos y la garantía de los derechos y libertades de las personas de aplicación en la Comunidad Autónoma Vasca.</p>
+      <p class="BOPVDetalle">Base 5.&#x2013; Premio Comunicación, difusión y creatividad en Protección de Datos.</p>
+      <p class="BOPVDetalle">Su objeto es premiar los trabajos de ciudadanía, de profesionales y de los medios de comunicación social que contribuyan a promover el derecho fundamental a la protección de datos de carácter personal.</p>
+      <p class="BOPVDetalle">Podrán optar al premio programas o secciones especializadas y series de artículos o noticias, así como reportajes, monográficos o contenidos singulares, publicados o difundidos en cualquier medio de comunicación social en alguna de las lenguas oficiales de la Comunidad Autónoma de Euskadi. También los trabajos individuales difundidos en un medio de comunicación &#x2013;como un editorial, noticia, reportaje, o programa de radio o televisión&#x2013; o los proyectos periodísticos y campañas audiovisuales que definan un compromiso editorial con la promoción de la protección de datos. Las candidaturas podrán ser presentadas tanto por periodistas (por sus trabajos publicados en un medio de comunicación) o por el medio de comunicación, incluyendo los blogs integrados en los mismos, como una campaña global o por personas individuales.</p>
+      <p class="BOPVDetalle">Podrán también concurrir aquellas personas o instituciones que, a través de las redes sociales o plataformas digitales contribuyan a la difusión del derecho fundamental a la protección de datos. Se reconocerá aquellos perfiles o autoras/es que se hayan caracterizado por el firme compromiso en la promoción y difusión del derecho a la protección de datos. Se priorizarán aquellos que hayan contribuido a difundir en mayor medida la protección de datos desde un plano social, tanto entre la ciudadanía como entre quienes tratan datos, así como aquellos que hayan publicado contenido relacionado con la protección de datos y/o la privacidad. Se valorará la originalidad tanto en los mensajes como en los formatos empleados así como el uso del euskera.</p>
+      <p class="BOPVDetalle">Podrán igualmente concurrir a este premio las personas creadoras de mensajes preventivos y responsables sobre protección de datos en las modalidades siguientes:</p>
+      <p class="BOPVDetalle">Creación Audiovisual: animaciones, spots, video arte u otro tipo de creación, cuya duración no exceda de cuatro minutos.</p>
+      <p class="BOPVDetalle">Creación Gráfica: ilustraciones, infografías, carteles y dibujos, individuales o en serie.</p>
+      <p class="BOPVDetalle">Creación Literaria: microrrelatos, eslóganes, claims, mensajes seriados u otro tipo de creación similar en extensión y contenido.</p>
+      <p class="BOPVDetalle">Los trabajos que se presenten a esta convocatoria no podrán haber sido premiados con anterioridad en esta misma categoría.</p>
+      <p class="BOPVDetalle">Los trabajos podrán presentarse en cualquiera de las dos lenguas oficiales de la Comunidad Autónoma de Euskadi. Se deberá aportar copia o referencia del trabajo en formato digital y, si resulta relevante, en formato papel, acompañado del modelo de solicitud que figura en el Anexo I.</p>
+      <p class="BOPVDetalle">Base 6.&#x2013; Premio a la proactividad y buenas prácticas en Protección de Datos.</p>
+      <p class="BOPVDetalle">Busca reconocer los proyectos organizativos, tecnológicos o de cualquier índole, que fomenten la mejora de las entidades en la gestión de la privacidad y la protección de datos en el ejercicio de sus funciones.</p>
+      <p class="BOPVDetalle">Reconoce las acciones llevadas a cabo para cumplir con el RGPD y la Ley Orgánica de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD) que contribuyan a reforzar las garantías del derecho a la protección de datos. Se tendrán en cuenta las propuestas que aborden la especial dificultad para el cumplimiento de la normativa por incluir tratamientos de datos de alto riesgo.</p>
+      <p class="BOPVDetalle">Pueden participar en este premio, que consiste en una mención honorífica, las Administraciones e Instituciones Públicas Vascas, entidades que componen el Sector Público Vasco así como aquellas incluidas en el artículo 2 de la Ley 16/2023, de 21 de diciembre, de la AVPD, que promuevan los proyectos de mejora en protección de datos.</p>
+      <p class="BOPVDetalle">Se deberá aportar la siguiente documentación:</p>
+      <p class="BOPVDetalle">&#x2013; Memoria descriptiva del proyecto, así como la documentación y el material que se estime oportuno.</p>
+      <p class="BOPVDetalle">&#x2013; Si se ha realizado su implantación, informe de la misma y situación actual.</p>
+      <p class="BOPVDetalle">&#x2013; Podrá también acompañarse de una presentación audiovisual con una duración no superior a 10 minutos.</p>
+      <p class="BOPVDetalle">Los proyectos que se presenten a esta convocatoria no podrán haber sido premiados con anterioridad en esta misma categoría.</p>
+      <p class="BOPVDetalle">La documentación de los proyectos podrá presentarse en cualquiera de las dos lenguas oficiales de la Comunidad Autónoma de Euskadi. Se deberá aportar copia o referencia de dicha documentación en formato digital y, si resulta relevante, en formato papel, acompañado del modelo de solicitud que figura en el Anexo III.</p>
+      <p class="BOPVDetalle">Base 7.&#x2013; Requisitos de participación.</p>
+      <p class="BOPVDetalle">7.1.&#x2013; La persona o personas físicas o jurídicas que presenten un proyecto deberán cumplir, a la fecha de presentación de la solicitud, los requisitos establecidos en el artículo 13 de la Ley 38/2003, de 17 de noviembre, General de Subvenciones, y en el artículo 50 del Decreto Legislativo 1/1997, de 11 de noviembre, por el que se aprueba el texto refundido de la Ley de Principios Ordenadores de la Hacienda General del País Vasco.</p>
+      <p class="BOPVDetalle">Las personas o entidades solicitantes habrán de presentar una declaración responsable de que no concurre en ellas ninguna de las circunstancias previstas en el artículo 13 de la Ley General de Subvenciones, declaración incluida en el modelo de solicitud que figura en el correspondiente anexo a esta convocatoria.</p>
+      <p class="BOPVDetalle">7.2.&#x2013; Las personas, tanto físicas como jurídicas, autoras del trabajo presentado, autorizan a la Autoridad Vasca de Protección de Datos a mencionar su autoría en cualquier actividad de difusión relacionada con la presente convocatoria, sin que por ello se devengue a su favor derecho económico alguno u obtención de cualquier otro tipo de beneficio diferente de la cantidad, en su caso, de los premios que se concedan.</p>
+      <p class="BOPVDetalle">7.3.&#x2013; La presentación de la solicitud supone la aceptación expresa y formal de los requisitos y obligaciones que se expresan en estas Bases.</p>
+      <p class="BOPVDetalle">Base 8.&#x2013; Solicitudes.</p>
+      <p class="BOPVDetalle">Los trabajos presentados deberán acompañarse del modelo de solicitud que figuran en el Anexo I.</p>
+      <p class="BOPVDetalle">Las solicitudes se dirigirán a la Secretaría General de la AVPD, y podrán presentarse en el Registro de la AVPD, Secretaría General de la Autoridad Vasca de Protección de Datos, sita en la calle Beato Tomás de Zumárraga, n.º. 71-3.º, 01008 Vitoria-Gasteiz, o por cualquiera de los medios previstos en el artículo 16.4 de la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas.</p>
+      <p class="BOPVDetalle">Si la documentación presentada no reuniera los requisitos exigidos, se requerirá a la persona o entidad solicitante para que en el plazo de diez días hábiles, a contar desde el siguiente a la recepción de la notificación, subsane la falta y acompañe los documentos preceptivos con indicación de que, si así no lo hiciera, se le tendrá por desistido en su petición, de conformidad con lo dispuesto en el artículo 21 de la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas.</p>
+      <p class="BOPVDetalle">El plazo de presentación de las solicitudes concluye a las 00:00 horas del día 1 de diciembre de 2024.</p>
+      <p class="BOPVDetalle">Base 9.&#x2013; Jurado.</p>
+      <p class="BOPVDetalle">Concederá los premios un Jurado compuesto por las siguientes personas:</p>
+      <p class="BOPVDetalle">&#x2013; Presidenta: la persona que presida la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVDetalle">&#x2013; Vocales: las personas que forman parte del Consejo Consultivo de la Autoridad Vasca de Protección de Datos, la persona Responsable de la Asesoría Jurídica e Inspección y la persona que ejerza de Delegada de Protección de Datos de la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVDetalle">&#x2013; La Secretaría, con voz y sin voto, corresponderá a la persona Secretaria General de la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVDetalle">Para evaluar las candidaturas presentadas el jurado podrá estar asistido de personas expertas en los ámbitos de actividad correspondientes a los premios convocados.</p>
+      <p class="BOPVDetalle">Base 10.&#x2013; Valoración.</p>
+      <p class="BOPVDetalle">La valoración por el Jurado de los trabajos presentados a los Premios Investigación o Emprendimiento y Comunicación, difusión y creatividad en Protección de Datos, se realizará conforme a los siguientes criterios:</p>
+      <p class="BOPVDetalle">&#x2013; Solvencia y rigor científico, técnico o jurídico.</p>
+      <p class="BOPVDetalle">&#x2013; Originalidad de los temas tratados.</p>
+      <p class="BOPVDetalle">&#x2013; Novedad del trabajo, de la aproximación o de los resultados.</p>
+      <p class="BOPVDetalle">&#x2013; Aportación destacada al conocimiento y profundización en la realidad de la protección de datos personales.</p>
+      <p class="BOPVDetalle">&#x2013; Grado en que se incorpora la perspectiva de género en el planteamiento y desarrollo.</p>
+      <p class="BOPVDetalle">El Premio a la proactividad y buenas prácticas en protección de datos será evaluado por el Jurado conforme a los siguientes criterios:</p>
+      <p class="BOPVDetalle">&#x2013; Solvencia y Calidad técnica del proyecto.</p>
+      <p class="BOPVDetalle">&#x2013; Contribución a la mejora en la gestión de la privacidad en la prestación de los servicios públicos.</p>
+      <p class="BOPVDetalle">&#x2013; Carácter innovador.</p>
+      <p class="BOPVDetalle">&#x2013; Impacto social.</p>
+      <p class="BOPVDetalle">&#x2013; Grado de desarrollo.</p>
+      <p class="BOPVDetalle">&#x2013; Grado en que se incorpora la perspectiva de género en el planteamiento y desarrollo.</p>
+      <p class="BOPVDetalle">El Jurado podrá acordar convocar a las candidaturas a los distintos premios para que puedan hacer una exposición presencial del trabajo, recurso o proyecto, y pedir las aclaraciones e informaciones precisas con objeto de evaluarlos.</p>
+      <p class="BOPVDetalle">Base 11.&#x2013; Resolución.</p>
+      <p class="BOPVDetalle">Finalizado el proceso de valoración, el Jurado resolverá los premios con anterioridad al 31 de diciembre de 2024.</p>
+      <p class="BOPVDetalle">La decisión del Jurado se hará pública por Resolución del Presidente de la Autoridad Vasca de Protección de Datos, publicada en el Boletín Oficial del País Vasco, en la web de la Autoridad Vasca de Protección de Datos y se notificará a todas las candidaturas.</p>
+      <p class="BOPVDetalle">El fallo del Jurado será inapelable y frente a él no cabrá recurso alguno.</p>
+      <p class="BOPVDetalle">Base 12.&#x2013; Entrega de los Premios.</p>
+      <p class="BOPVDetalle">La entrega de los Premios y, en su caso, de los accésits, se llevará a cabo en el marco del día europeo de protección de datos, en un acto público del que se informará con suficiente antelación en la web de la Autoridad Vasca de Protección de Datos (<a href="https://www.avpd.eus" target="_blank">www.avpd.eus</a>), y se comunicará a todas las entidades y personas que resulten premiadas.</p>
+      <p class="BOPVDetalle">Base 13.&#x2013; Protección de datos.</p>
+      <p class="BOPVDetalle">Los datos de carácter personal que consten en la solicitud serán tratados por la Autoridad Vasca de Protección de Datos e incorporados a la actividad de tratamiento «Invitados y asistentes a eventos y actividades de formación», con la finalidad de gestión y resolución de la convocatoria. Finalidad basada en el interés público de la convocatoria y en la solicitud de participación en ella.</p>
+      <p class="BOPVDetalle">Los datos relativos a quienes obtengan premio se publicarán en la web de la AVPD. En las modalidades que incluyen prestación económica, los datos serán comunicados a las entidades financieras que efectúan las transferencias de fondos, a los solos efectos de su tramitación. Asimismo, los datos se ceden a las administraciones competentes en materia fiscal y tributaria, como son las Haciendas Forales y, en su caso, a la Autoridad Estatal de la Administración Tributaria, de acuerdo con la normativa tributaria y a los Órganos Administrativos de la Comunidad Autónoma del País Vasco con competencia en materia de fiscalización.</p>
+      <p class="BOPVDetalle">Los datos serán conservados durante la tramitación del procedimiento de concesión del premio y de las reclamaciones que se puedan formular, siendo de aplicación la normativa de archivos y patrimonio documental. En las modalidades que incluyen prestación económica, los datos se conservarán conforme a lo dispuesto en la legislación tributaria de aplicación.</p>
+      <p class="BOPVDetalle">Puede ejercitarse los derechos de acceso, rectificación, supresión y portabilidad de los datos, de limitación y oposición a su tratamiento, así como a no ser objeto de decisiones basadas únicamente en el tratamiento automatizado de sus datos, cuando procedan, ante la Autoridad Vasca de Protección de, calle Beato Tomás de Zumárraga, 71, 3. 01008 Vitoria-Gasteiz, o en la dirección de correo electrónico avpd@avpd.eus</p>
+      <p class="BOPVDetalle">Tercero.&#x2013; Normativa aplicable.</p>
+      <p class="BOPVDetalle">En lo no previsto en las bases aprobadas por la presente Resolución, será de aplicación lo dispuesto en el Título VI del Decreto Legislativo 1/1997, de 11 de noviembre, por el que se aprueba el Texto Refundido de la Ley de Principios Ordenadores de la Hacienda General del País Vasco, en la Ley 38/2003, de 17 de noviembre, General de Subvenciones, y su Reglamento, aprobado por Real Decreto 887/2006, de 21 de julio, en la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas, en la Ley 40/2015, de 1 de octubre, de Régimen Jurídico del Sector Público y cuantas otras normas vigentes resulten de aplicación.</p>
+      <p class="BOPVDetalle">Cuarto.&#x2013; Contra la presente Resolución podrá interponerse recurso potestativo de reposición ante la Presidencia de la AVPD en el plazo de un mes a partir del día siguiente a su publicación o en recurso contencioso &#x2013; administrativo en el plazo de dos meses ante la jurisdicción contencioso-administrativa en el plazo de dos meses a contar desde el día siguiente a su publicación.</p>
+      <p class="BOPVDetalle">Quinto.&#x2013; La presente Resolución se publicará en el Boletín Oficial del País Vasco y en la página web de la Autoridad Vasca de Protección de Datos.</p>
+      <p class="BOPVFirmaLugFec">En Vitoria-Gasteiz, a 17 de octubre de 2024.</p>
+      <p class="BOPVFirmaPuesto">El Presidente de la Autoridad Vasca de Protección de Datos,</p>
+      <p class="BOPVFirmaNombre">UNAI ABERASTURI GORRIÑO.</p>
+      <h6 class="BOPVClave">(Véase el .PDF)</h6>
+      <div class="clr"><br/></div><input type="hidden" name="bopvNumOrden" id="bopvNumOrden" value="2024004929"></input><!-- Panel Calificación -->          
+<script language="JavaScript" type="text/javascript">
+function modalWinCas() {
+var nOrden;
+//if (parent.document.getElementById("bopvNumOrden").value == ""){
+if (document.getElementById("bopvNumOrden").value == ""){
+	//Modif 03/04/2018: correccion analisis docum desde busqueda. Intenta sin parent, y con parent. 
+	//nOrden=parent.document.URL;
+	//var lastPosition = nOrden.lastIndexOf('/bopv2/datos/');
+	nOrden = document.URL;
+	var lastPosition = nOrden.lastIndexOf('/bopv2/datos/');
+	if (lastPosition==-1 && parent){
+		nOrden = parent.document.URL;	
+		lastPosition = nOrden.lastIndexOf('/bopv2/datos/');
+	}
+	if (lastPosition!=-1){
+		lastPosition = lastPosition + '/bopv2/datos/'.length;
+		nOrden=nOrden.substr(lastPosition,4)+'0'+nOrden.substr(lastPosition+10,5);
+	}
+}else {
+	//nOrden = parent.document.getElementById("bopvNumOrden").value;
+	if ($("#bopvNumOrden").length){
+		nOrden=$("#bopvNumOrden").val();
+	} else {
+		nOrden = document.getElementById("bopvNumOrden").value;
+	}
+}
+var w="600";
+var h="300";
+if (typeof screen!='undefined') {
+ w = screen.availWidth/2;
+ h = screen.availHeight/2;
+}
+if (window.showModalDialog) {
+window.showModalDialog("/p43aBOPVWebWar/VerCalificacion.do?nOrden=" + nOrden + "&idioma=es&R01HNoPortal=true","calificacion",
+"dialogWidth:"+w+"px;dialogHeight:"+h+"px;location:no;resizable=yes");
+} else {
+window.open("/p43aBOPVWebWar/VerCalificacion.do?nOrden=" + nOrden + "&idioma=es&R01HNoPortal=true","calificacion",
+"height="+h+"px,width="+w+"px,toolbar=no,directories=no,status=no,menubar=no,scrollbars=no,location=no,resizable=yes,modal=yes");
+}
+}
+</script> 
+<span class="bopvanalisisdoc">
+<a href="#" onclick="javascript:modalWinCas(); return false;" title="Este enlace se abrirá en nueva ventana">Análisis documental</a>
+</span>
+<div class="BOPVDisPie"><br/></div>
+    </div></div><script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/appcont/servibopvi/scripts/r48-calendario.js"></script>
